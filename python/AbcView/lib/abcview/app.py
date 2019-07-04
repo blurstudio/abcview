@@ -36,18 +36,21 @@
 #-******************************************************************************
 
 import os
-import re
 import sys
-import math
 import time
 import logging
 import traceback
 from functools import wraps
 from copy import deepcopy
 
-from PyQt4 import QtCore
-from PyQt4 import QtGui
-from PyQt4 import uic
+try:
+    from PyQt5 import QtWidgets
+    from PyQt5 import QtGui
+    from PyQt5 import QtCore
+except:
+    from PySide2 import QtWidgets
+    from PySide2 import QtGui
+    from PySide2 import QtCore
 
 import imath
 import alembic
@@ -61,7 +64,6 @@ from abcview.widget.console_widget import AbcConsoleWidget
 from abcview.widget.viewer_widget import GLWidget
 from abcview.widget.time_slider import TimeSlider
 from abcview.widget.tree_widget import *
-from abcview.utils import json
 
 __all__ = ['create_app', 'AbcView', 'io2gl', 'version_check', ]
 
@@ -553,11 +555,10 @@ class AbcView(QtGui.QMainWindow):
         # time slider
         self.time_slider = TimeSlider(self)
         self.time_slider.setFocus(True)
-        self.time_slider.signal_play_fwd.connect(self.handle_play)
-        self.time_slider.signal_play_stop.connect(self.handle_stop)
-        #self.time_slider.signal_frame_changed.connect(self.handle_time_slider_change)
-        self.time_slider.signal_first_frame_changed.connect(self.handle_first_frame_change)
-        self.time_slider.signal_last_frame_changed.connect(self.handle_last_frame_change)
+        self.time_slider.SIGNAL_PLAY_FWD.connect(self.handle_play)
+        self.time_slider.SIGNAL_PLAY_STOP.connect(self.handle_stop)
+        self.time_slider.SIGNAL_FIRST_FRAME_CHANGED.connect(self.handle_first_frame_change)
+        self.time_slider.SIGNAL_LAST_FRAME_CHANGED.connect(self.handle_last_frame_change)
         self.time_slider_toolbar = QtGui.QToolBar(self)
         self.time_slider_toolbar.setObjectName("time_slider_toolbar")
         self.time_slider_toolbar.addWidget(self.time_slider)
@@ -886,7 +887,7 @@ class AbcView(QtGui.QMainWindow):
 
         log.debug("session loaded in %.2fs"  % (time.time() - start))
         self.splash.close()
-        self.time_slider.signal_frame_changed.connect(self.handle_time_slider_change)
+        self.time_slider.SIGNAL_FRAME_CHANGED.connect(self.handle_time_slider_change)
 
         self.viewer.setEnabled(True)
 
