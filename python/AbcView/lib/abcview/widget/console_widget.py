@@ -39,45 +39,19 @@ import re
 import sys
 import traceback
 
-from PyQt4 import QtCore
-from PyQt4 import QtGui
+from PyQt5 import QtCore
+from PyQt5 import QtGui
+from PyQt5 import QtWidgets
 
 from abcview import log, style, config
 
-class AbcConsoleWidget(QtGui.QPlainTextEdit):
+class AbcConsoleWidget(QtWidgets.QPlainTextEdit):
     """
     Simple PyQt-based Python interpreter widget with predefined alembic contexts. 
     """
-    def __init__(self, parent=None, prompt='>>> ', startup_message=''):
-        super(AbcConsoleWidget, self).__init__(parent)
-        self._parent = parent
-        self.setObjectName('AbcConsoleWidget')
-        self.prompt = prompt
-        self.history = []
-        self.namespace = {}
-        self.construct = []
 
-        self.setGeometry(50, 75, 600, 400)
-        self.setWordWrapMode(QtGui.QTextOption.WrapAnywhere)
-        self.setUndoRedoEnabled(False)
-        self.document().setDefaultFont(QtGui.QFont("monospace", 10, QtGui.QFont.Normal))
-        
-        self.newPrompt()
-
-        self.setFocusPolicy(QtCore.Qt.ClickFocus)
-
-    def leaveEvent(self, event):
-        self._parent.setFocus()
-        super(AbcConsoleWidget, self).leaveEvent(event)
-
-    def updateNamespace(self, namespace):
-        self.namespace.update(namespace)
-
-    def exit(self):
-        self.parent().parent().close()
-
-    def handleHelp(self, arg=None):
-        self.showMessage("""
+    FONT_NAME = 'monospace'
+    HELP_MSG = '''
 Welcome to the AbcView Python Console. 
 
 Built-in functions:
@@ -99,7 +73,38 @@ To find an object from a regular expression:
 
 To get the selected item from the Objects Tree,
 
-\t>>> obj = objects.selected()""")
+\t>>> obj = objects.selected()'''
+
+    def __init__(self, parent=None, prompt='>>> ', startup_message=''):
+        super(AbcConsoleWidget, self).__init__(parent)
+        self._parent = parent
+        self.setObjectName('AbcConsoleWidget')
+        self.prompt = prompt
+        self.history = []
+        self.namespace = {}
+        self.construct = []
+
+        self.setGeometry(50, 75, 600, 400)
+        self.setWordWrapMode(QtGui.QTextOption.WrapAnywhere)
+        self.setUndoRedoEnabled(False)
+        self.document().setDefaultFont(QtGui.QFont(AbcConsoleWidget.FONT_NAME, 10, QtGui.QFont.Normal))
+        
+        self.newPrompt()
+
+        self.setFocusPolicy(QtCore.Qt.ClickFocus)
+
+    def leaveEvent(self, event):
+        self._parent.setFocus()
+        super(AbcConsoleWidget, self).leaveEvent(event)
+
+    def updateNamespace(self, namespace):
+        self.namespace.update(namespace)
+
+    def exit(self):
+        self.parent().parent().close()
+
+    def handleHelp(self, arg=None):
+        self.showMessage(AbcConsoleWidget.HELP_MSG)
 
     def showMessage(self, message):
         self.appendPlainText(message)
@@ -184,30 +189,30 @@ To get the selected item from the Objects Tree,
     def tabComplete(self):
         try:
             from rlcompleter import Completer
-            c = Completer(self.namespace)
+            completer = Completer(self.namespace)
             cmd = self.getCommand()
-            if "." in cmd:
-                matches = c.attr_matches(cmd)
+            if '.' in cmd:
+                matches = completer.attr_matches(cmd)
             else:
-                matches = c.global_matches(cmd)
+                matches = completer.global_matches(cmd)
             if len(matches) == 1:
                 cmd = matches[0]
             else:
-                self.appendPlainText("\t".join(matches))
+                self.appendPlainText('\t'.join(matches))
             self.newPrompt()
             self.setCommand(cmd)
-        except ImportError, e:
-            log.error(e)
+        except ImportError, error:
+            log.error(error)
     
     def runScript(self, script_path):
         if not os.path.isfile(script_path):
             return
         try:
-            log.info("executing: %s" % script_path)
+            log.info('executing: {0}'.format(script_path))
             execfile(script_path, self.namespace, self.namespace)
         except Exception, e:
             err = traceback.format_exc()
-            log.error("%s: %s" % (os.path.basename(script_path), err))
+            log.error('{0}: {1}'.format(os.path.basename(script_path), err))
 
     def runCommand(self):
         command = self.getCommand()
