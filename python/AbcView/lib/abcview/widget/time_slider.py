@@ -35,14 +35,21 @@
 #
 #-******************************************************************************
 
-import os
-import sys
+try:
+    from PyQt5 import QtWidgets
+    from PyQt5 import QtGui
+    from PyQt5 import QtCore
+    from PyQt5.QtCore import pyqtSignal as Signal
+except:
+    from PySide2 import QtWidgets
+    from PySide2 import QtGui
+    from PySide2 import QtCore
+    from PySide2.QtCore import Signal as Signal
 
-from PyQt4 import QtCore
-from PyQt4 import QtGui
-from PyQt4 import uic
+class Slider(QtWidgets.QSlider):
 
-class Slider(QtGui.QSlider):
+    FONT_NAME = 'Arial'
+
     def __init__(self, parent):
         super(Slider, self).__init__(QtCore.Qt.Horizontal, parent)
         self._parent = parent
@@ -54,8 +61,8 @@ class Slider(QtGui.QSlider):
         self.setSingleStep(1)
         self.setPageStep(1)
 
-    def draw_text(self, rect, qp, value):
-        qp.drawText(rect, QtCore.Qt.AlignLeft, str(value))
+    def draw_text(self, rect, q_painter, value):
+        q_painter.drawText(rect, QtCore.Qt.AlignLeft, str(value))
 
     def length(self):
         return self.maximum() - self.minimum()
@@ -116,16 +123,16 @@ class Slider(QtGui.QSlider):
 
     def paintEvent(self, event):
         super(Slider, self).paintEvent(event)
-        qp = QtGui.QPainter()
-        qp.begin(self)
+        q_painter = QtGui.QPainter()
+        q_painter.begin(self)
 
         # default text style
-        qp.setPen(QtGui.QColor(155, 165, 155))
-        qp.setFont(QtGui.QFont('Arial', 10))
+        q_painter.setPen(QtGui.QColor(155, 165, 155))
+        q_painter.setFont(QtGui.QFont(Slider.FONT_NAME, 10))
         
         rect_s = event.rect()
         rect_s.setY(2)
-        sr = rect_s.getRect()
+        section_rect = rect_s.getRect()
 
         opt = QtGui.QStyleOptionSlider()
         self.initStyleOption(opt)
@@ -134,21 +141,21 @@ class Slider(QtGui.QSlider):
                                       style.SC_SliderHandle, self) 
         # slider position
         if self.__paint_slider_frame and self.length() > 0:
-            rect_s = QtCore.QRect(sr[0], sr[1], sr[2], sr[3])
+            rect_s = QtCore.QRect(section_rect[0], section_rect[1], section_rect[2], section_rect[3])
             rect_s.setX(handle.x()+6)
-            qp.fillRect(rect_s.x()-6, rect_s.y()-10, rect_s.width(), 20,
+            q_painter.fillRect(rect_s.x()-6, rect_s.y()-10, rect_s.width(), 20,
                         QtGui.QColor(55, 55, 55))
-            qp.setPen(QtGui.QColor(55, 255, 95))
-            self.draw_text(rect_s, qp, self.value())
+            q_painter.setPen(QtGui.QColor(55, 255, 95))
+            self.draw_text(rect_s, q_painter, self.value())
 
         # mouse position
         if self.__paint_mouse_frame:
-            rect_m = QtCore.QRect(sr[0], sr[1], sr[2], sr[3])
+            rect_m = QtCore.QRect(section_rect[0], section_rect[1], section_rect[2], section_rect[3])
             rect_m.setX(self.mouse_pos_x)
-            qp.setPen(QtGui.QColor(145, 245, 145))
-            self.draw_text(rect_m, qp, self.value(self.mouse_pos_x))
+            q_painter.setPen(QtGui.QColor(145, 245, 145))
+            self.draw_text(rect_m, q_painter, self.value(self.mouse_pos_x))
 
-        qp.end()
+        q_painter.end()
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Space:
@@ -157,16 +164,17 @@ class Slider(QtGui.QSlider):
             super(Slider, self).keyPressEvent(event)
 
 class TimeSlider(QtGui.QGroupBox):
-    signal_play_fwd = QtCore.pyqtSignal()
-    signal_play_stop = QtCore.pyqtSignal()
-    signal_frame_changed = QtCore.pyqtSignal(int)
-    signal_first_frame_changed = QtCore.pyqtSignal(int)
-    signal_last_frame_changed = QtCore.pyqtSignal(int)
+
+    SIGNAL_PLAY_FWD = Signal()
+    SIGNAL_PLAY_STOP = Signal()
+    SIGNAL_FRAME_CHANGED = Signal(int)
+    SIGNAL_FIRST_FRAME_CHANGED = Signal(int)
+    SIGNAL_LAST_FRAME_CHANGED = Signal(int)
 
     def __init__(self, parent):
         super(TimeSlider, self).__init__(parent)
         self._parent = parent
-        self.setObjectName("time_slider")
+        self.setObjectName('time_slider')
         self.setLayout(QtGui.QHBoxLayout())
         self.setFixedHeight(20)
         self.layout().setSpacing(0)
@@ -179,13 +187,13 @@ class TimeSlider(QtGui.QGroupBox):
 
         # play button
         self.play_button = QtGui.QPushButton(self)
-        self.play_button.setObjectName("play_button")
+        self.play_button.setObjectName('play_button')
         self.play_button.setFixedSize(50, 20)
         self.play_button.clicked.connect(self.handle_play)
         
         # stop button
         self.stop_button = QtGui.QPushButton(self)
-        self.stop_button.setObjectName("stop_button")
+        self.stop_button.setObjectName('stop_button')
         self.stop_button.setFixedSize(50, 20)
         self.stop_button.clicked.connect(self.handle_stop)
         self.stop_button.hide()
@@ -264,13 +272,13 @@ class TimeSlider(QtGui.QGroupBox):
     playing = property(_get_playing, _set_playing)
 
     def handle_frame_change(self, value):
-        self.signal_frame_changed.emit(value)
+        self.SIGNAL_FRAME_CHANGED.emit(value)
 
     def handle_first_frame_changed(self):
         value, ok = self.first_frame_label.text().toInt()
         if value <= self.__maximum:
             self.set_minimum(value)
-            self.signal_first_frame_changed.emit(int(value))
+            self.SIGNAL_FIRST_FRAME_CHANGED.emit(int(value))
         else:
             self.set_minimum(self.__maximum)
 
@@ -278,19 +286,19 @@ class TimeSlider(QtGui.QGroupBox):
         value, ok = self.last_frame_label.text().toInt()
         if value >= self.__minimum:
             self.set_maximum(int(value))
-            self.signal_last_frame_changed.emit(int(value))
+            self.SIGNAL_LAST_FRAME_CHANGED.emit(int(value))
         else:
             self.set_maximum(self.__minimum)
 
     def handle_stop(self):
         self.playing = False
-        self.signal_play_stop.emit()
+        self.SIGNAL_PLAY_STOP.emit()
 
     def handle_play(self):
         if self.length() == 0:
             return
         self.playing = True
-        self.signal_play_fwd.emit()
+        self.SIGNAL_PLAY_FWD.emit()
 
     ## base class overrides
 
