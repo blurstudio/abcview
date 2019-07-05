@@ -470,7 +470,7 @@ class SceneTreeWidgetItem(SessionTreeWidgetItem):
         yield ObjectTreeWidgetItem(self, self.object.archive.getTop())
 
 ## tree Widgets ---------------------------------------------------------------
-class DeselectableTreeWidget(QtGui.QTreeWidget):
+class DeselectableTreeWidget(QtWidgets.QTreeWidget):
     def mousePressEvent(self, event):
         self.clearSelection()
         QtGui.QTreeView.mousePressEvent(self, event)
@@ -502,7 +502,7 @@ class AbcTreeWidget(DeselectableTreeWidget):
         return [self.COLUMNS[el] for el in sorted(el for el in self.COLUMNS if type(el) == int)]
 
     def __init__(self, parent, main):
-        super(QtGui.QTreeWidget, self).__init__(parent)
+        super(QtWidgets.QTreeWidget, self).__init__(parent)
         self.main = main
         self.__row_height = 24
 
