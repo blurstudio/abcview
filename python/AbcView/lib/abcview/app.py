@@ -400,7 +400,7 @@ class AbcMenuBar(QtGui.QMenuBar):
         _v = ' '.join([abcview.config.__prog__, abcview.config.__version__])
         message('\n'.join([_v, abcview.__doc__]))
 
-class FindLineEdit(QtGui.QLineEdit):
+class FindLineEdit(QtWidgets.QLineEdit):
     """
     Auto-unfocus line editor used for search bar.
     """
@@ -437,7 +437,7 @@ class Splash(QtGui.QSplashScreen):
         layout.setSpacing(0)
         layout.setMargin(0)
         layout.addWidget(self.logo)
-        self.text = QtGui.QLineEdit()
+        self.text = QtWidgets.QLineEdit()
         self.progress = QtGui.QProgressBar()
         self.progress.setMaximum(100)
         self.progress.setMinimum(0)

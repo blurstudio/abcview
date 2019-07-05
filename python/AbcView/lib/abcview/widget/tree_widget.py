@@ -102,7 +102,7 @@ class ArrayThread(QtCore.QThread):
         except TypeError, e:
             self.SIGNAL_ARRAY.emit(0, str(self.array))
 
-class SceneLineEditor(QtGui.QLineEdit):
+class SceneLineEditor(QtWidgets.QLineEdit):
     """
     Top-level delegate for SceneTreeWidgetItems, used on the name column to
     facilitate scene renaming.
