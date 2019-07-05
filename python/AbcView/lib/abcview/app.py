@@ -573,10 +573,10 @@ class AbcView(QtGui.QMainWindow):
         self.addToolBar(QtCore.Qt.BottomToolBarArea, self.time_slider_toolbar)
 
         # splitters
-        self.main_splitter = QtGui.QSplitter(QtCore.Qt.Vertical, self)
-        self.console_splitter = QtGui.QSplitter(QtCore.Qt.Vertical, self)
-        self.objects_splitter = QtGui.QSplitter(QtCore.Qt.Horizontal, self)
-        self.properties_splitter = QtGui.QSplitter(QtCore.Qt.Vertical, self)
+        self.main_splitter = QtWidgets.QSplitter(QtCore.Qt.Vertical, self)
+        self.console_splitter = QtWidgets.QSplitter(QtCore.Qt.Vertical, self)
+        self.objects_splitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal, self)
+        self.properties_splitter = QtWidgets.QSplitter(QtCore.Qt.Vertical, self)
         self.properties_splitter.addWidget(self.properties_tree)
         self.properties_splitter.addWidget(self.samples_tree)
         self.properties_splitter.addWidget(self.array_tree)
