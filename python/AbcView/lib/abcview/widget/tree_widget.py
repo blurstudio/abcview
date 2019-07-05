@@ -383,9 +383,6 @@ class ArrayTreeWidgetItem(AbcTreeWidgetItem):
 ## session tree items ---------------------------------------------------------
 class SessionTreeWidgetItem(AbcTreeWidgetItem):
 
-    SIGNAL_ITEM_LOADED = Signal(object)
-    SIGNAL_ITEM_UNLOADED = Signal(object)
-
     def __init__(self, parent, object):
         """
         :param object: abcview.io.Session
@@ -485,8 +482,8 @@ class AbcTreeWidget(DeselectableTreeWidget):
     #TODO: Check signals used
     SIGNAL_ITEM_SELECTED = Signal()
     SIGNAL_ITEM_EXPANDED = Signal()
-    SIGNAL_ITEM_LOADED = Signal()
-    SIGNAL_ITEM_UNLOADED = Signal()
+    SIGNAL_ITEM_LOADED = Signal(AbcTreeWidgetItem)
+    SIGNAL_ITEM_UNLOADED = Signal(AbcTreeWidgetItem)
     SIGNAL_ITEM_ADDED = Signal(AbcTreeWidgetItem)
     SIGNAL_ITEM_REMOVED = Signal(AbcTreeWidgetItem)
     SIGNAL_ITEM_COLLAPSED = Signal(AbcTreeWidgetItem)
