@@ -178,7 +178,7 @@ class TimeSlider(QtWidgets.QGroupBox):
         self.setLayout(QtWidgets.QHBoxLayout())
         self.setFixedHeight(20)
         self.layout().setSpacing(0)
-        self.layout().setMargin(0)
+        self.layout().setContentsMargins(0, 0, 0, 0)
 
         # slider
         self.slider = Slider(self)
