@@ -163,7 +163,7 @@ class Slider(QtWidgets.QSlider):
         else:
             super(Slider, self).keyPressEvent(event)
 
-class TimeSlider(QtGui.QGroupBox):
+class TimeSlider(QtWidgets.QGroupBox):
 
     SIGNAL_PLAY_FWD = Signal()
     SIGNAL_PLAY_STOP = Signal()
