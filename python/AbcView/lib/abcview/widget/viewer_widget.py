@@ -949,7 +949,7 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         :param action: QAction
         """
-        self.set_camera(str(action.text().toAscii()))
+        self.set_camera(str(action.text()))
 
     def handle_set_mode(self, mode):
         """
@@ -959,7 +959,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         """
         self.setCursor(QtCore.Qt.WaitCursor)
         if self.sender(): # via menu action 
-            mode = self.sender().data().toInt()[0]
+            mode = self.sender().data()[0]
         if mode not in GL_MODE_MAP.keys():
             raise Exception('Invalid drawing mode: {0}'.format(mode))
         self.camera.mode = mode
@@ -971,14 +971,14 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         :param action: QAction object
         """
-        action_name = str(action.text().toAscii())
+        action_name = str(action.text())
         if action_name == 'New':
             text, ok = QtWidgets.QInputDialog.getText(self,
                                                   'New Camera',
                                                   'Camera Name:',
                                                   QtWidgets.QLineEdit.Normal)
-            if ok and not text.isEmpty():
-                name = str(text.toAscii())
+            if ok and text:
+                name = str(text)
                 camera = abcview.gl.GLCamera(self, name)
                 self.add_camera(camera)
                 self.set_camera(name)
