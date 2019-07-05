@@ -134,9 +134,9 @@ class AbcTreeWidgetItem(QtWidgets.QTreeWidgetItem):
 
     def _set_valid(self, valid=True):
         if not valid:
-            self.setTextColor(2, QtGui.QColor(1, 0, 0))
+            self.setForeground(2, QtGui.QColor(1, 0, 0))
         else:
-            self.setTextColor(2, QtGui.QColor(1, 1, 1))
+            self.setForeground(2, QtGui.QColor(1, 1, 1))
         self.setDisabled(not valid)
         self.__valid = valid
 
