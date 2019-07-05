@@ -1253,7 +1253,7 @@ class AbcView(QtWidgets.QMainWindow):
         :param name: name of object
         """
         abcview.log.debug('[{0}.handle_object_selected] {1}'.format(self, name))
-        self.objects_tree.find(str(name.toAscii()))
+        self.objects_tree.find(str(name))
 
     @wait
     def find(self, name):
