@@ -1587,7 +1587,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         """
         mouse wheel event handler
         """
-        dx = float(event.delta()) / 10
+        #TODO : fix it
+        dx = event.pixelDelta().y() / 10
         self.camera.dolly(dx, 0)
         event.accept()
 
