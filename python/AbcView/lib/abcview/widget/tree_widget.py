@@ -115,12 +115,12 @@ class SceneLineEditor(QtWidgets.QLineEdit):
         self.setFocusPolicy(QtCore.Qt.ClickFocus)
 
 ## alembic tree items ---------------------------------------------------------
-class AbcTreeWidgetItem(QtGui.QTreeWidgetItem):
+class AbcTreeWidgetItem(QtWidgets.QTreeWidgetItem):
     """
     Base class from which all other tree widgets are derived.
     """
     def __init__(self, parent, object=None):
-        super(QtGui.QTreeWidgetItem, self).__init__(parent)
+        super(QtWidgets.QTreeWidgetItem, self).__init__(parent)
         self._parent = parent
         self.seen = False
         self.valid = True
@@ -196,13 +196,13 @@ class ObjectTreeWidgetItem(AbcTreeWidgetItem):
         :param iObject: IObject class object
         """
         super(ObjectTreeWidgetItem, self).__init__(parent, object)
-        self.setChildIndicatorPolicy(QtGui.QTreeWidgetItem.DontShowIndicator)
+        self.setChildIndicatorPolicy(QtWidgets.QTreeWidgetItem.DontShowIndicator)
         self.setIcon(0, QtGui.QIcon('{0}/object.png'.format(abcview.config.ICON_DIR)))
 
         self.object = iObject
         if object:
             if self.iObject.getNumChildren() > 0:
-                self.setChildIndicatorPolicy(QtGui.QTreeWidgetItem.ShowIndicator)
+                self.setChildIndicatorPolicy(QtWidgets.QTreeWidgetItem.ShowIndicator)
             self.setExpanded(False)
             self.setText('name', iObject.getName())
             self.setToolTip('name', iObject.getFullName())
@@ -293,9 +293,9 @@ class PropertyTreeWidgetItem(AbcTreeWidgetItem):
         self.property = property
 
         if self.property.isCompound():
-            self.setChildIndicatorPolicy(QtGui.QTreeWidgetItem.ShowIndicator)
+            self.setChildIndicatorPolicy(QtWidgets.QTreeWidgetItem.ShowIndicator)
         else:
-            self.setChildIndicatorPolicy(QtGui.QTreeWidgetItem.DontShowIndicator)
+            self.setChildIndicatorPolicy(QtWidgets.QTreeWidgetItem.DontShowIndicator)
 
         for i in range(self.treeWidget().header().count()):
             self.treeWidget().header().showSection(i)
@@ -347,7 +347,7 @@ class SampleTreeWidgetItem(AbcTreeWidgetItem):
         self.property = property
         self.sample = sample
 
-        self.setChildIndicatorPolicy(QtGui.QTreeWidgetItem.DontShowIndicator)
+        self.setChildIndicatorPolicy(QtWidgets.QTreeWidgetItem.DontShowIndicator)
 
         self.setText('index', index)
         self.setText('size', self.length())
@@ -376,7 +376,7 @@ class SampleTreeWidgetItem(AbcTreeWidgetItem):
 class ArrayTreeWidgetItem(AbcTreeWidgetItem):
     def __init__(self, parent, index, value, array=None):
         super(ArrayTreeWidgetItem, self).__init__(parent, array)
-        self.setChildIndicatorPolicy(QtGui.QTreeWidgetItem.DontShowIndicator)
+        self.setChildIndicatorPolicy(QtWidgets.QTreeWidgetItem.DontShowIndicator)
         self.setText('index', index)
         self.setText('value', value)
 
@@ -391,7 +391,7 @@ class SessionTreeWidgetItem(AbcTreeWidgetItem):
         :param object: abcview.io.Session
         """
         super(SessionTreeWidgetItem, self).__init__(parent, object)
-        self.setChildIndicatorPolicy(QtGui.QTreeWidgetItem.ShowIndicator)
+        self.setChildIndicatorPolicy(QtWidgets.QTreeWidgetItem.ShowIndicator)
         self.setExpanded(True)
         self.setText('name', self.object.name)
         self.setToolTip('name', self.object.filepath)
