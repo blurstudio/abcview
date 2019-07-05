@@ -47,10 +47,12 @@ try:
     from PyQt5 import QtWidgets
     from PyQt5 import QtGui
     from PyQt5 import QtCore
+    from PyQt5.QtCore import pyqtSignal as Signal
 except:
     from PySide2 import QtWidgets
     from PySide2 import QtGui
     from PySide2 import QtCore
+    from PySide2.QtCore import Signal as Signal
 
 import imath
 import alembic
@@ -605,7 +607,7 @@ class AbcView(QtGui.QMainWindow):
         self.find_line_edit.returnPressed.connect(self.handle_find)
 
         # wait for main event loop to start
-        QtGui.QApplication.instance().signal_starting_up.connect(self._start)
+        QtGui.QApplication.instance().SIGNAL_STARTING_UP.connect(self._start)
 
         # create the splash screen
         self.splash = Splash(self)
@@ -1518,7 +1520,8 @@ class App(QtGui.QApplication):
     the event loop has started. This may trigger deferred
     file loading, among other things.
     """
-    signal_starting_up = QtCore.pyqtSignal()
+
+    SIGNAL_STARTING_UP = Signal()
 
     def __init__(self, args):
         super(App, self).__init__(args)
@@ -1529,7 +1532,7 @@ class App(QtGui.QApplication):
         """
         Callback function for Timer timeout.
         """
-        self.signal_starting_up.emit()
+        self.SIGNAL_STARTING_UP.emit()
 
 def version_check():
     """
