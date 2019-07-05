@@ -140,7 +140,7 @@ def create_viewer_app(filepath=None):
 
     # create the viewer widget
     viewer = GLWidget()
-    viewer_group = QtGui.QGroupBox()
+    viewer_group = QtWidgets.QGroupBox()
     viewer_group.setLayout(QtGui.QVBoxLayout())
     viewer_group.layout().setSpacing(0)
     viewer_group.layout().setMargin(0)
@@ -708,14 +708,14 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.parent().layout().addWidget(splitter)
 
         # left/top viewer group
-        group1 = QtGui.QGroupBox()
+        group1 = QtWidgets.QGroupBox()
         group1.setLayout(QtGui.QVBoxLayout())
         group1.layout().setSpacing(0)
         group1.layout().setMargin(0)
         group1.layout().addWidget(item.widget())
 
         # right/bottom viewer group
-        group2 = QtGui.QGroupBox()
+        group2 = QtWidgets.QGroupBox()
         group2.setLayout(QtGui.QVBoxLayout())
         group2.layout().setSpacing(0)
         group2.layout().setMargin(0)

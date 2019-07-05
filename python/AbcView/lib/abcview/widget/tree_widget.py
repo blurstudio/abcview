@@ -442,7 +442,7 @@ class SceneTreeWidgetItem(SessionTreeWidgetItem):
         self.object.tree = self
 
         # color indicator delegate
-        self.groupBox = QtGui.QGroupBox()
+        self.groupBox = QtWidgets.QGroupBox()
         self.treeWidget().setItemWidget(self,
                 self.treeWidget().colnum('color'), self.groupBox)
         self.set_color(QtGui.QColor(*[x*500.0 for x in self.object.color]))

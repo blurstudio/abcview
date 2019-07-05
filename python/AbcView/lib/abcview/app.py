@@ -158,7 +158,7 @@ def io2gl(item, viewer=None):
     else:
         return
 
-class QScriptAction(QtGui.QGroupBox):
+class QScriptAction(QtWidgets.QGroupBox):
     def __init__(self, name, filepath, action, doc='', version='', author=''):
         """
         :param name: name of the script
@@ -502,7 +502,7 @@ class AbcView(QtGui.QMainWindow):
         self.main_menu = AbcMenuBar(self, main=self)
         self.setMenuBar(self.main_menu)
 
-        self.objects_group = QtGui.QGroupBox(self)
+        self.objects_group = QtWidgets.QGroupBox(self)
         self.objects_group.setLayout(QtGui.QVBoxLayout())
 
         #TODO: refactor these signals
@@ -539,7 +539,7 @@ class AbcView(QtGui.QMainWindow):
 
         # viewer
         self.viewer = abcview.widget.viewer_widget.GLWidget(self)
-        self.viewer_group = QtGui.QGroupBox(self)
+        self.viewer_group = QtWidgets.QGroupBox(self)
         self.viewer_group.setLayout(QtGui.QVBoxLayout())
         self.viewer_group.layout().setSpacing(0)
         self.viewer_group.layout().setMargin(0)
