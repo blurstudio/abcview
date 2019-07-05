@@ -66,10 +66,7 @@ import imath
 import alembic
 
 import abcview
-import abcview.io.Mode
-import abcview.gl.GLCamera
-import abcview.gl.GLICamera
-import abcview.gl.GLScene
+import abcview.io
 import abcview.gl
 
 # GL drawing mode map
