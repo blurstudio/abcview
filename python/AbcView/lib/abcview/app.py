@@ -22,7 +22,7 @@
 # prior written permission.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 # LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
 # A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
 # OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
@@ -56,16 +56,26 @@ import imath
 import alembic
 
 import abcview
-from abcview import log, style, config
-from abcview.io import Session, Scene, Camera, ICamera
-from abcview.gl import GLCamera, GLICamera, GLScene
-from abcview.gl import get_final_matrix
-from abcview.widget.console_widget import AbcConsoleWidget
-from abcview.widget.viewer_widget import GLWidget
-from abcview.widget.time_slider import TimeSlider
-from abcview.widget.tree_widget import *
+import abcview.io.Session
+import abcview.io.Scene
+import abcview.io.Camera
+import abcview.io.ICamera
+import abcview.io.Mode
+import abcview.gl.GLCamera
+import abcview.gl.GLICamera
+import abcview.gl.GLScene
+import abcview.gl
+import abcview.widget.console_widget
+import abcview.widget.viewer_widget
+import abcview.widget.time_slider
+import abcview.widget.tree_widget
 
-__all__ = ['create_app', 'AbcView', 'io2gl', 'version_check', ]
+__all__ = [
+    'create_app',
+    'AbcView',
+    'io2gl',
+    'version_check',
+]
 
 def make_dirty(func):
     """make abcview session dirty decorator"""
@@ -97,12 +107,13 @@ def wait(func):
 
 def message(info):
     dialog = QtGui.QMessageBox()
-    dialog.setStyleSheet(style.DIALOG)
+    dialog.setStyleSheet(abcview.style.DIALOG)
     dialog.setText(info)
     dialog.exec_()
 
 # global file load counter (for default scene colors)
-global COUNT; COUNT = 0
+global COUNT
+COUNT = 0
 
 def io2gl(item, viewer=None):
     """
@@ -110,22 +121,23 @@ def io2gl(item, viewer=None):
     Used for loading session items into the GL viewer.
 
     :param item: Session, Scene, Camera or ICamera object
-    :param viewer: GLWidget object
+    :param viewer: abcview.widget.viewer_widget.GLWidget object
     """
-    global COUNT; COUNT += 1
-    if item.type() == Session.type():
+    global COUNT
+    COUNT += 1
+    if isinstance(item, abcview.io.Session):
         for child in item.walk():
             io2gl(child, viewer)
         return
 
-    elif item.type() == Scene.type():
+    elif isinstance(item, abcview.io.Scene):
         if not os.path.isfile(item.filepath):
-            log.warn("file not found %s" % item.filepath)
+            abcview.log.warn('file not found {0}'.format(item.filepath))
             return
-        item.__class__ = GLScene
+        item.__class__ = abcview.gl.GLScene
         item.init()
 
-    elif item.type() == Camera.type():
+    elif isinstance(item, abcview.io.Camera):
         _translation = item.translation
         _rotation = item.rotation
         _scale = item.scale
@@ -133,7 +145,7 @@ def io2gl(item, viewer=None):
         _near = item.near
         _far = item.far
         _ratio = item.aspect_ratio
-        item.__class__ = GLCamera
+        item.__class__ = abcview.gl.GLCamera
         item.init(viewer,
                   translation=_translation,
                   rotation=_rotation,
@@ -144,15 +156,15 @@ def io2gl(item, viewer=None):
                   aspect_ratio=_ratio,
                  )
 
-    elif item.type() == ICamera.type():
-        item.__class__ = GLICamera
+    elif isinstance(item, abcview.io.ICamera):
+        item.__class__ = abcview.gl.GLICamera
         item.init(viewer)
 
     else:
         return
 
 class QScriptAction(QtGui.QGroupBox):
-    def __init__(self, name, filepath, action, doc="", version="", author=""):
+    def __init__(self, name, filepath, action, doc='', version='', author=''):
         """
         :param name: name of the script
         :param action: QWidgetAction object
@@ -168,8 +180,8 @@ class QScriptAction(QtGui.QGroupBox):
         self.label = QtGui.QPushButton(os.path.basename(name))
         self.button = QtGui.QPushButton()
         self.button.setFixedSize(12, 12)
-        self.button.setObjectName("edit_button")
-        self.button.setIcon(QtGui.QIcon("%s/edit.png" % config.ICON_DIR))
+        self.button.setObjectName('edit_button')
+        self.button.setIcon(QtGui.QIcon('{0}/edit.png'.format(abcview.config.ICON_DIR)))
         self.button.setIconSize(self.button.size())
         self.button.setFocusPolicy(QtCore.Qt.NoFocus)
         self.layout.addWidget(self.label)
@@ -179,7 +191,7 @@ class QScriptAction(QtGui.QGroupBox):
         self.setLayout(self.layout)
         self.label.pressed.connect(self.handle_clicked)
         self.button.pressed.connect(self.handle_edit)
-        self.setToolTip("%s %s\n(author: %s)\n\n%s" %(name, version, author, doc))
+        self.setToolTip('{0} {1}\n(author: {2})\n\n{3}'.format(name, version, author, doc))
 
     def handle_clicked(self):
         """script click handler"""
@@ -187,8 +199,8 @@ class QScriptAction(QtGui.QGroupBox):
 
     def handle_edit(self):
         """script edit button handler"""
-        cmd = " ".join([config.SCRIPT_EDITOR, self.filepath])
-        log.debug(cmd)
+        cmd = ' '.join([abcview.config.SCRIPT_EDITOR, self.filepath])
+        abcview.log.debug(cmd)
         os.system(cmd)
 
 class AbcMenuBar(QtGui.QMenuBar):
@@ -197,15 +209,15 @@ class AbcMenuBar(QtGui.QMenuBar):
         self.main = main
         self.setFocusPolicy(QtCore.Qt.ClickFocus)
 
-        self.file_menu = QtGui.QMenu("File")
-        self.widget_menu = QtGui.QMenu("Widgets")
-        self.script_menu = QtGui.QMenu("Scripts")
-        self.help_menu = QtGui.QMenu("Help")
+        self.file_menu = QtGui.QMenu('File')
+        self.widget_menu = QtGui.QMenu('Widgets')
+        self.script_menu = QtGui.QMenu('Scripts')
+        self.help_menu = QtGui.QMenu('Help')
 
-        self.file_menu.setStyleSheet(style.MAIN)
-        self.widget_menu.setStyleSheet(style.MAIN)
-        self.script_menu.setStyleSheet(style.MAIN)
-        self.help_menu.setStyleSheet(style.MAIN)
+        self.file_menu.setStyleSheet(abcview.style.MAIN)
+        self.widget_menu.setStyleSheet(abcview.style.MAIN)
+        self.script_menu.setStyleSheet(abcview.style.MAIN)
+        self.help_menu.setStyleSheet(abcview.style.MAIN)
 
         self.setup_file_menu()
         self.setup_wid_menu()
@@ -213,56 +225,56 @@ class AbcMenuBar(QtGui.QMenuBar):
         self.setup_help_menu()
 
     def setup_file_menu(self):
-        self.file_menu.addAction("New", self.main.handle_new, "Ctrl+N")
-        self.file_menu.addAction("Open", self.main.handle_open, "Ctrl+O")
-        self.file_menu.addAction("Import", self.main.handle_import, "Ctrl+I")
-        self.file_menu.addAction("Reload", self.main.handle_reload, "Ctrl+R")
+        self.file_menu.addAction('New', self.main.handle_new, 'Ctrl+N')
+        self.file_menu.addAction('Open', self.main.handle_open, 'Ctrl+O')
+        self.file_menu.addAction('Import', self.main.handle_import, 'Ctrl+I')
+        self.file_menu.addAction('Reload', self.main.handle_reload, 'Ctrl+R')
 
         self.file_menu.addSeparator()
-        self.file_menu.addAction("Save", self.main.handle_save, "Ctrl+S")
-        self.file_menu.addAction("Save As..", self.main.handle_save_as, "Ctrl+Shift+S")
+        self.file_menu.addAction('Save', self.main.handle_save, 'Ctrl+S')
+        self.file_menu.addAction('Save As..', self.main.handle_save_as, 'Ctrl+Shift+S')
         self.file_menu.addSeparator()
-        self.file_menu.addAction("Save Layout", self.main.save_settings, "Ctrl+Alt+S")
-        self.file_menu.addAction("Reset Layout", self.main.reset_settings)
-        self.file_menu.addAction("Review Mode", self.main.review_settings)
+        self.file_menu.addAction('Save Layout', self.main.save_settings, 'Ctrl+Alt+S')
+        self.file_menu.addAction('Reset Layout', self.main.reset_settings)
+        self.file_menu.addAction('Review Mode', self.main.review_settings)
         self.file_menu.addSeparator()
-        self.file_menu.addAction("Quit", self.main.close, "Ctrl+Q")
+        self.file_menu.addAction('Quit', self.main.close, 'Ctrl+Q')
         self.addMenu(self.file_menu)
 
     def setup_wid_menu(self):
-        self.console_action = QtGui.QAction("Console", self)
-        self.console_action.setShortcut("Ctrl+Shift+C")
+        self.console_action = QtGui.QAction('Console', self)
+        self.console_action.setShortcut('Ctrl+Shift+C')
         self.console_action.setCheckable(True)
         self.console_action.setChecked(True)
-        self.connect(self.console_action, QtCore.SIGNAL("toggled (bool)"), self.handle_show_console)
+        self.console_action.toggled.connect(self.handle_show_console)
         self.widget_menu.addAction(self.console_action)
 
-        self.object_action = QtGui.QAction("Objects", self)
-        self.object_action.setShortcut("Ctrl+Shift+O")
+        self.object_action = QtGui.QAction('Objects', self)
+        self.object_action.setShortcut('Ctrl+Shift+O')
         self.object_action.setCheckable(True)
         self.object_action.setChecked(True)
-        self.connect(self.object_action, QtCore.SIGNAL("toggled (bool)"), self.handle_show_objects)
+        self.object_action.toggled.connect(self.handle_show_objects)
         self.widget_menu.addAction(self.object_action)
 
-        self.props_action = QtGui.QAction("Properties", self)
-        self.props_action.setShortcut("Ctrl+Shift+P")
+        self.props_action = QtGui.QAction('Properties', self)
+        self.props_action.setShortcut('Ctrl+Shift+P')
         self.props_action.setCheckable(True)
         self.props_action.setChecked(True)
-        self.connect(self.props_action, QtCore.SIGNAL("toggled (bool)"), self.handle_show_props)
+        self.props_action.toggled.connect(self.handle_show_props)
         self.widget_menu.addAction(self.props_action)
 
-        self.time_slider_action = QtGui.QAction("Timeline", self)
-        self.time_slider_action.setShortcut("Ctrl+Shift+T")
+        self.time_slider_action = QtGui.QAction('Timeline', self)
+        self.time_slider_action.setShortcut('Ctrl+Shift+T')
         self.time_slider_action.setCheckable(True)
         self.time_slider_action.setChecked(True)
-        self.connect(self.time_slider_action, QtCore.SIGNAL("toggled (bool)"), self.handle_show_timeline)
+        self.time_slider_action.toggled.connect(self.handle_show_timeline)
         self.widget_menu.addAction(self.time_slider_action)
 
-        self.viewer_action = QtGui.QAction("Viewer", self)
-        self.viewer_action.setShortcut("Ctrl+Shift+V")
+        self.viewer_action = QtGui.QAction('Viewer', self)
+        self.viewer_action.setShortcut('Ctrl+Shift+V')
         self.viewer_action.setCheckable(True)
         self.viewer_action.setChecked(True)
-        self.connect(self.viewer_action, QtCore.SIGNAL("toggled (bool)"), self.handle_show_viewer)
+        self.viewer_action.toggled.connect(self.handle_show_viewer)
         self.widget_menu.addAction(self.viewer_action)
 
         self.addMenu(self.widget_menu)
@@ -272,13 +284,13 @@ class AbcMenuBar(QtGui.QMenuBar):
         self.handle_refresh_scripts()
 
     def setup_help_menu(self):
-        self.help_menu.addAction("About Alembic", self.handle_about_abc)
-        self.help_menu.addAction("About AbcView", self.handle_about_abcview)
+        self.help_menu.addAction('About Alembic', self.handle_about_abc)
+        self.help_menu.addAction('About AbcView', self.handle_about_abcview)
         self.addMenu(self.help_menu)
 
     def handle_refresh_scripts(self):
         self.script_menu.clear()
-        self.script_menu.addAction("Refresh", self.handle_refresh_scripts)
+        self.script_menu.addAction('Refresh', self.handle_refresh_scripts)
         self.script_menu.addSeparator()
 
         def get_docs(script):
@@ -289,15 +301,15 @@ class AbcMenuBar(QtGui.QMenuBar):
             """
             import ast
 
-            doc = ""
+            doc = ''
             name = os.path.basename(script)
-            version = ""
-            author = ""
+            version = ''
+            author = ''
 
             try:
                 m = ast.parse(''.join(open(script)))
                 doc = ast.get_docstring(m)
-                assigns = [node for node in m.body if type(node) == ast.Assign]
+                assigns = [node for node in m.body if isinstance(node, ast.Assign)]
                 names = [a.value.s for a in assigns if getattr(a.targets[0], 'id', None) == '__name__']
                 authors = [a.value.s for a in assigns if getattr(a.targets[0],'id', None) == '__author__']
                 versions = [a.value.s for a in assigns if getattr(a.targets[0], 'id', None) == '__version__']
@@ -312,7 +324,7 @@ class AbcMenuBar(QtGui.QMenuBar):
                     version = versions[0]
 
             except Exception, e:
-                log.error(e)
+                abcview.log.error(e)
 
             return doc, name, version, author
 
@@ -328,17 +340,17 @@ class AbcMenuBar(QtGui.QMenuBar):
             for r, d, f in os.walk(path):
                 for files in f:
                     name = os.path.basename(files)
-                    if name == "__init__.py":
+                    if name == '__init__.py':
                         continue
-                    if files.endswith(".py"):
+                    if files.endswith('.py'):
                         script = os.path.join(r, files)
                         doc, name, version, author = get_docs(script)
                         _scripts[name] = {
-                            "name": name,
-                            "filepath": script,
-                            "doc": doc,
-                            "version": version,
-                            "author": author
+                            'name': name,
+                            'filepath': script,
+                            'doc': doc,
+                            'version': version,
+                            'author': author
                         }
             return _scripts
 
@@ -347,10 +359,10 @@ class AbcMenuBar(QtGui.QMenuBar):
             builds up the script menu from a dict of found scripts
             """
             for name, meta in scripts.items():
-                doc = meta.get("doc")
-                version = meta.get("version")
-                author = meta.get("author")
-                filepath = meta.get("filepath")
+                doc = meta.get('doc')
+                version = meta.get('version')
+                author = meta.get('author')
+                filepath = meta.get('filepath')
                 script_act = QtGui.QWidgetAction(self.script_menu)
                 script_act.setDefaultWidget(QScriptAction(name, filepath, script_act, doc, version, author))
                 script_act.setData(filepath)
@@ -358,10 +370,10 @@ class AbcMenuBar(QtGui.QMenuBar):
                 self.script_menu.addAction(script_act)
 
         # built-in scripts that ship with abcview
-        scripts = find_scripts(config.SCRIPT_DIR)
+        scripts = find_scripts(abcview.config.SCRIPT_DIR)
 
         # user-defined script paths
-        for path in config.USER_SCRIPT_DIR:
+        for path in abcview.config.USER_SCRIPT_DIR:
             scripts.update(find_scripts(path) or {})
 
         # build the scripts menu
@@ -387,11 +399,11 @@ class AbcMenuBar(QtGui.QMenuBar):
         self.main.toggle_widget(self.main.viewer_group)
 
     def handle_about_abc(self):
-        message("Using Alembic %s" % alembic.Abc.GetLibraryVersionShort())
+        message('Using Alembic {0}'.format(alembic.Abc.GetLibraryVersionShort()))
 
     def handle_about_abcview(self):
-        _v = " ".join([config.__prog__, config.__version__])
-        message("\n".join([_v, abcview.__doc__]))
+        _v = ' '.join([abcview.config.__prog__, abcview.config.__version__])
+        message('\n'.join([_v, abcview.__doc__]))
 
 class FindLineEdit(QtGui.QLineEdit):
     """
@@ -415,12 +427,12 @@ class Splash(QtGui.QSplashScreen):
     def __init__(self, parent):
         super(Splash, self).__init__(parent)
         self._parent = parent
-        self.setStyleSheet(style.SPLASH)
+        self.setStyleSheet(abcview.style.SPLASH)
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
         # logo
         self.logo = QtGui.QLabel()
-        self.logo.setPixmap(QtGui.QPixmap("%s/logo.png" % config.ICON_DIR))
+        self.logo.setPixmap(QtGui.QPixmap('{0}/logo.png'.format(abcview.config.ICON_DIR)))
 
         self.resize(600, 350)
         self.move(0, 0)
@@ -458,12 +470,12 @@ class Splash(QtGui.QSplashScreen):
 
 ## MAIN -----------------------------------------------------------------------
 class AbcView(QtGui.QMainWindow):
-    '''
+    """
     Main application. The best way to instantiate this class is to use
     the :py:func:`.create_app` function.
-    '''
+    """
 
-    TITLE = " ".join([config.__prog__, config.__version__])
+    TITLE = ' '.join([abcview.config.__prog__, abcview.config.__version__])
 
     def __init__(self, filepath=None):
         """
@@ -476,7 +488,7 @@ class AbcView(QtGui.QMainWindow):
         self.setWindowFlags(QtCore.Qt.Window)
         self.setWindowTitle(self.TITLE)
         self.setStyle(QtGui.QStyleFactory.create('cleanlooks'))
-        self.setStyleSheet(style.MAIN)
+        self.setStyleSheet(abcview.style.MAIN)
         self.setMinimumSize(200, 200)
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
 
@@ -487,9 +499,9 @@ class AbcView(QtGui.QMainWindow):
         self._overrides = {}
 
         # for storing session data
-        self.settings = QtCore.QSettings("Alembic",
-                           "-".join([config.__prog__, config.__version__]))
-        self.session = Session(filepath)
+        self.settings = QtCore.QSettings('Alembic',
+                           '-'.join([abcview.config.__prog__, abcview.config.__version__]))
+        self.session = abcview.io.Session(filepath)
 
         # main menu
         self.main_menu = AbcMenuBar(self, main=self)
@@ -499,9 +511,9 @@ class AbcView(QtGui.QMainWindow):
         self.objects_group.setLayout(QtGui.QVBoxLayout())
 
         #TODO: refactor these signals
-        self.objects_tree = ObjectTreeWidget(self, main=self)
+        self.objects_tree = abcview.widget.tree_widget.ObjectTreeWidget(self, main=self)
         self.objects_tree.signal_item_removed.connect(self.handle_item_removed)
-        self.objects_tree.signal_view_camera.connect(self.handle_view_camera)
+        self.objects_tree.SIGNAL_VIEW_CAMERA.connect(self.handle_view_camera)
         self.objects_tree.itemSelectionChanged.connect(self.handle_object_selection)
         self.objects_tree.itemClicked.connect(self.handle_item_selected)
 
@@ -512,12 +524,12 @@ class AbcView(QtGui.QMainWindow):
         self.objects_group.layout().addWidget(self.objects_tree)
 
         # tree widgets
-        self.properties_tree = PropertyTreeWidget(self, main=self)
-        self.samples_tree = SampleTreeWidget(self, main=self)
-        self.array_tree = ArrayTreeWidget(self, main=self)
+        self.properties_tree = abcview.widget.tree_widget.PropertyTreeWidget(self, main=self)
+        self.samples_tree = abcview.widget.tree_widget.SampleTreeWidget(self, main=self)
+        self.array_tree = abcview.widget.tree_widget.ArrayTreeWidget(self, main=self)
 
         # console widget
-        self.console = AbcConsoleWidget(self)
+        self.console = abcview.widget.console_widget.AbcConsoleWidget(self)
         self.console.updateNamespace({
             'exit': self.console.exit,
             'find': self.find,
@@ -531,7 +543,7 @@ class AbcView(QtGui.QMainWindow):
             })
 
         # viewer
-        self.viewer = GLWidget(self)
+        self.viewer = abcview.widget.viewer_widget.GLWidget(self)
         self.viewer_group = QtGui.QGroupBox(self)
         self.viewer_group.setLayout(QtGui.QVBoxLayout())
         self.viewer_group.layout().setSpacing(0)
@@ -540,27 +552,27 @@ class AbcView(QtGui.QMainWindow):
         self.main_menu.setFocusProxy(self.viewer)
 
         # viewer/state connections
-        self.viewer.signal_scene_error.connect(self.handle_viewer_error)
-        self.viewer.signal_scene_opened.connect(self.handle_scene_opened)
-        self.viewer.signal_set_camera.connect(self.handle_set_camera)
-        self.viewer.signal_new_camera.connect(self.handle_new_camera)
-        self.viewer.state.signal_current_frame.connect(self.handle_update_frame)
-        self.viewer.state.signal_play_fwd.connect(self.handle_state_play_fwd)
-        self.viewer.state.signal_play_stop.connect(self.handle_state_play_stop)
-        self.viewer.signal_scene_selected.connect(self.handle_scene_selected)
-        self.viewer.signal_object_selected.connect(self.handle_object_selected)
-        self.viewer.signal_clear_selection.connect(self.objects_tree.clearSelection)
-        self.viewer.signal_undrawable_scene.connect(self.handle_bad_scene)
+        self.viewer.SIGNAL_SCENE_ERROR.connect(self.handle_viewer_error)
+        self.viewer.SIGNAL_SCENE_OPENED.connect(self.handle_scene_opened)
+        self.viewer.SIGNAL_SET_CAMERA.connect(self.handle_set_camera)
+        self.viewer.SIGNAL_NEW_CAMERA.connect(self.handle_new_camera)
+        self.viewer.state.SIGNAL_CURRENT_FRAME.connect(self.handle_update_frame)
+        self.viewer.state.SIGNAL_PLAY_FWD.connect(self.handle_state_play_fwd)
+        self.viewer.state.SIGNAL_PLAY_STOP.connect(self.handle_state_play_stop)
+        self.viewer.SIGNAL_SCENE_SELECTED.connect(self.handle_scene_selected)
+        self.viewer.SIGNAL_OBJECT_SELECTED.connect(self.handle_object_selected)
+        self.viewer.SIGNAL_CLEAR_SELECTION.connect(self.objects_tree.clearSelection)
+        self.viewer.SIGNAL_UNDRAWABLE_SCENE.connect(self.handle_bad_scene)
 
         # time slider
-        self.time_slider = TimeSlider(self)
+        self.time_slider = abcview.widget.time_slider.TimeSlider(self)
         self.time_slider.setFocus(True)
         self.time_slider.SIGNAL_PLAY_FWD.connect(self.handle_play)
         self.time_slider.SIGNAL_PLAY_STOP.connect(self.handle_stop)
         self.time_slider.SIGNAL_FIRST_FRAME_CHANGED.connect(self.handle_first_frame_change)
         self.time_slider.SIGNAL_LAST_FRAME_CHANGED.connect(self.handle_last_frame_change)
         self.time_slider_toolbar = QtGui.QToolBar(self)
-        self.time_slider_toolbar.setObjectName("time_slider_toolbar")
+        self.time_slider_toolbar.setObjectName('time_slider_toolbar')
         self.time_slider_toolbar.addWidget(self.time_slider)
         self.time_slider_toolbar.setMovable(False)
         self.addToolBar(QtCore.Qt.BottomToolBarArea, self.time_slider_toolbar)
@@ -582,24 +594,15 @@ class AbcView(QtGui.QMainWindow):
         self.setCentralWidget(self.console_splitter)
 
         # TODO: refactor signals to new signal object method
-        self.properties_tree.connect(self.objects_tree, QtCore.SIGNAL("itemSelectionChanged()"),
-                self.properties_tree.clear)
-        self.samples_tree.connect(self.properties_tree, QtCore.SIGNAL("itemSelectionChanged()"),
-                self.samples_tree.clear)
-        self.array_tree.connect(self.samples_tree, QtCore.SIGNAL("itemSelectionChanged()"),
-                self.array_tree.clear)
-        self.connect(self.objects_tree, QtCore.SIGNAL("itemLoaded (PyQt_PyObject)"),
-                self.handle_item_loaded)
-        self.connect(self.objects_tree, QtCore.SIGNAL("itemUnloaded (PyQt_PyObject)"),
-                self.handle_item_unloaded)
-        self.properties_tree.connect(self.objects_tree, QtCore.SIGNAL("itemClicked (PyQt_PyObject)"),
-                self.handle_object_clicked)
-        self.samples_tree.connect(self.properties_tree, QtCore.SIGNAL("itemClicked (PyQt_PyObject)"),
-                self.handle_property_clicked)
-        self.array_tree.connect(self.samples_tree, QtCore.SIGNAL("itemClicked (PyQt_PyObject)"),
-                self.array_tree.show_values)
-        self.connect(self.find_line_edit, QtCore.SIGNAL("returnPressed ()"),
-                self.handle_find)
+        self.objects_tree.itemSelectionChanged.connect(self.properties_tree.clear)
+        self.properties_tree.itemSelectionChanged.connect(self.samples_tree.clear)
+        self.samples_tree.itemSelectionChanged.connect(self.array_tree.clear)
+        self.objects_tree.itemLoaded.connect(self.handle_item_loaded)
+        self.objects_tree.itemUnloaded.connect(self.handle_item_unloaded)
+        self.objects_tree.itemClicked.connect(self.handle_object_clicked)
+        self.properties_tree.itemClicked.connect(self.handle_property_clicked)
+        self.samples_tree.itemClicked.connect(self.array_tree.show_values)
+        self.find_line_edit.returnPressed.connect(self.handle_find)
 
         # wait for main event loop to start
         QtGui.QApplication.instance().signal_starting_up.connect(self._start)
@@ -608,18 +611,18 @@ class AbcView(QtGui.QMainWindow):
         self.splash = Splash(self)
 
         # open a session
-        if filepath and filepath.endswith(Session.EXT):
+        if filepath and filepath.endswith(abcview.io.Session.EXT):
             self.open_file(filepath)
 
     def __repr__(self):
-        return "<%s %s>" % (self.__class__.__name__, id(self))
+        return '<{0} {1}>'.format(self.__class__.__name__, id(self))
 
     @make_clean
     def clear(self):
         """
         Clears session and viewer.
         """
-        self.session = Session()
+        self.session = abcview.io.Session()
         self.viewer.clear()
         self.objects_tree.clear()
         self.properties_tree.clear()
@@ -633,11 +636,11 @@ class AbcView(QtGui.QMainWindow):
         :param message: text to display
         """
         msg = QtGui.QMessageBox()
-        msg.setStyleSheet(style.DIALOG)
-        msg.setText(message);
-        msg.setInformativeText("Do you want to save your changes?");
-        msg.setStandardButtons(QtGui.QMessageBox.Save | QtGui.QMessageBox.Discard | QtGui.QMessageBox.Cancel);
-        msg.setDefaultButton(QtGui.QMessageBox.Save);
+        msg.setStyleSheet(abcview.style.DIALOG)
+        msg.setText(message)
+        msg.setInformativeText('Do you want to save your changes?')
+        msg.setStandardButtons(QtGui.QMessageBox.Save | QtGui.QMessageBox.Discard | QtGui.QMessageBox.Cancel)
+        msg.setDefaultButton(QtGui.QMessageBox.Save)
         return msg.exec_()
 
     ## settings
@@ -674,7 +677,7 @@ class AbcView(QtGui.QMainWindow):
 
     def review_settings(self):
         """
-        Loads "review" display settings. Does not affect saved settings.
+        Loads 'review' display settings. Does not affect saved settings.
         """
         self._settings(1200, 600)
         self.viewer.camera.draw_grid = False
@@ -697,7 +700,7 @@ class AbcView(QtGui.QMainWindow):
         self.restoreState(self.settings.value('window_state').toByteArray())
 
         # layout settings
-        self.settings.beginGroup("layout")
+        self.settings.beginGroup('layout')
         self.main_splitter.restoreState(
                 self.settings.value('main_splitter').toByteArray())
         self.objects_splitter.restoreState(
@@ -719,11 +722,11 @@ class AbcView(QtGui.QMainWindow):
         self.settings.endGroup()
 
         # restore viewer settings
-        self.settings.beginGroup("viewer")
-        self.viewer.restoreGeometry(self.settings.value("geometry").toByteArray())
+        self.settings.beginGroup('viewer')
+        self.viewer.restoreGeometry(self.settings.value('geometry').toByteArray())
 
         # drawing mode
-        mode, found = self.settings.value("draw_mode").toInt()
+        mode, found = self.settings.value('draw_mode').toInt()
         if found:
             self.viewer.mode = mode
 
@@ -737,25 +740,25 @@ class AbcView(QtGui.QMainWindow):
             settings = self.settings
 
         # general settings
-        settings.setValue("geometry", self.saveGeometry())
-        settings.setValue("window_state", self.saveState())
+        settings.setValue('geometry', self.saveGeometry())
+        settings.setValue('window_state', self.saveState())
 
         # layout settings
-        settings.beginGroup("layout")
-        settings.setValue("main_splitter", self.main_splitter.saveState())
-        settings.setValue("objects_splitter", self.objects_splitter.saveState())
-        settings.setValue("properties_splitter", self.properties_splitter.saveState())
-        settings.setValue("console_splitter", self.console_splitter.saveState())
-        settings.setValue("objects_hidden", self.objects_group.isHidden())
-        settings.setValue("properties_hidden", self.properties_splitter.isHidden())
-        settings.setValue("console_hidden", self.console.isHidden())
-        settings.setValue("time_slider_hidden", self.time_slider_toolbar.isHidden())
-        settings.setValue("viewer_hidden", self.viewer_group.isHidden())
+        settings.beginGroup('layout')
+        settings.setValue('main_splitter', self.main_splitter.saveState())
+        settings.setValue('objects_splitter', self.objects_splitter.saveState())
+        settings.setValue('properties_splitter', self.properties_splitter.saveState())
+        settings.setValue('console_splitter', self.console_splitter.saveState())
+        settings.setValue('objects_hidden', self.objects_group.isHidden())
+        settings.setValue('properties_hidden', self.properties_splitter.isHidden())
+        settings.setValue('console_hidden', self.console.isHidden())
+        settings.setValue('time_slider_hidden', self.time_slider_toolbar.isHidden())
+        settings.setValue('viewer_hidden', self.viewer_group.isHidden())
         settings.endGroup()
 
         # save viewer settings
-        settings.beginGroup("viewer")
-        settings.setValue("geometry", self.saveGeometry())
+        settings.beginGroup('viewer')
+        settings.setValue('geometry', self.saveGeometry())
 
         # save timeslider settings
         settings.endGroup()
@@ -790,34 +793,34 @@ class AbcView(QtGui.QMainWindow):
 
         :param mode: alembic.io.Mode value, or None
         """
-        log.debug("[%s].set_default_mode: %s" % (self, mode))
-        self._overrides["mode"] = mode
+        abcview.log.debug('[{0}].set_default_mode: {1}'.format(self, mode))
+        self._overrides['mode'] = mode
 
     def set_first_frame(self, frame):
-        log.debug("[%s.set_first_frame] %s" % (self, frame))
-        self._overrides["first_frame"] = frame
+        abcview.log.debug('[{0}.set_first_frame] {1}'.format(self, frame))
+        self._overrides['first_frame'] = frame
         self.viewer.state.min_time = frame / self.viewer.state.frames_per_second
         self.time_slider.set_minimum(frame)
         self.time_slider.slider.setMinimum(frame)
         self.viewer.state.min_frame = frame
 
     def set_last_frame(self, frame):
-        log.debug("[%s.set_last_frame] %s" % (self, frame))
-        self._overrides["last_frame"] = frame
+        abcview.log.debug('[{0}.set_last_frame] {1}'.format(self, frame))
+        self._overrides['last_frame'] = frame
         self.viewer.state.max_time = frame / self.viewer.state.frames_per_second
         self.time_slider.set_maximum(frame)
         self.time_slider.slider.setMaximum(frame)
         self.viewer.state.max_frame = frame
 
     def set_frames_per_second(self, fps=24):
-        log.debug("[%s.set_frames_per_second] %s" % (self, fps))
-        self._overrides["frames_per_second"] = fps
+        abcview.log.debug('[{0}.set_frames_per_second] {1}'.format(self, fps))
+        self._overrides['frames_per_second'] = fps
         self.session.frames_per_second = fps
         self.viewer.state.frames_per_second = fps
 
     def set_current_frame(self, frame):
-        log.debug("[%s.set_current_frame] %s" % (self, frame))
-        self._overrides["current_frame"] = frame
+        abcview.log.debug('[{0}.set_current_frame] {1}'.format(self, frame))
+        self._overrides['current_frame'] = frame
         self.viewer.state.current_frame = frame
         self.time_slider.set_value(frame)
         self.time_slider.slider.setValue(frame)
@@ -832,8 +835,8 @@ class AbcView(QtGui.QMainWindow):
         :param mode: Override display mode (abcview.io.Mode)
         """
         self._load_files = deepcopy(filepaths)
-        #self.setWindowTitle("%s - %s" % (self.TITLE,
-        #    ", ".join([os.path.basename(f) for f in filepaths]))
+        #self.setWindowTitle('%s - %s' % (self.TITLE,
+        #    ', '.join([os.path.basename(f) for f in filepaths]))
         #)
         self.splash.progress.setMaximum(len(filepaths))
 
@@ -842,9 +845,9 @@ class AbcView(QtGui.QMainWindow):
         Updates the time slider's frame range according to the min/max
         frames of the given session.
 
-        :param session: GLScene object.
+        :param session: abcview.gl.GLScene object.
         """
-        assert session.type() == Session.type(), "Invalid session"
+        assert isinstance(session, abcview.io.Session), 'Invalid session'
         self.viewer.state.min_time = session.min_time
         self.viewer.state.max_time = session.max_time
         self.viewer.state.current_time = session.current_time
@@ -857,9 +860,9 @@ class AbcView(QtGui.QMainWindow):
         Updates the time slider's frame range according to the min/max
         frames of the given scene.
 
-        :param scene: GLScene object.
+        :param scene: abcview.gl.GLScene object.
         """
-        assert scene.type() == GLScene.type(), "Invalid scene"
+        assert isinstance(scene, abcview.gl.GLScene), 'Invalid scene'
         self.viewer.state.min_time = scene.min_time()
         self.viewer.state.max_time = scene.max_time()
         self.time_slider.set_minimum(scene.min_time() * self.session.frames_per_second)
@@ -870,10 +873,10 @@ class AbcView(QtGui.QMainWindow):
         This is the startup callback function for when the QApplication starts
         its event loop. This handles deferred file loading.
         """
-        log.debug("[%s]._start" % self)
+        abcview.log.debug('[{0}]._start'.format(self))
         self.viewer.setDisabled(True)
 
-        self.splash.setMessage("starting up")
+        self.splash.setMessage('starting up')
         self._wait()
         start = time.time()
         self.splash.show()
@@ -883,9 +886,9 @@ class AbcView(QtGui.QMainWindow):
             self._load()
         except Exception, e:
             traceback.print_exc()
-            log.error(e)
+            abcview.log.error(e)
 
-        log.debug("session loaded in %.2fs"  % (time.time() - start))
+        abcview.log.debug('session loaded in {0:.2fs}'.format(time.time() - start))
         self.splash.close()
         self.time_slider.SIGNAL_FRAME_CHANGED.connect(self.handle_time_slider_change)
 
@@ -902,8 +905,8 @@ class AbcView(QtGui.QMainWindow):
         _bad_files = []
 
         # if just one session file, replace current session
-        if len(self._load_files) == 1 and self._load_files[0].endswith(Session.EXT):
-            self.session = Session(self._load_files[0])
+        if len(self._load_files) == 1 and self._load_files[0].endswith(abcview.io.Session.EXT):
+            self.session = abcview.io.Session(self._load_files[0])
 
         # otherwise, add each file to current session
         else:
@@ -914,13 +917,12 @@ class AbcView(QtGui.QMainWindow):
                 try:
                     self.session.add_file(filepath)
                 except abcview.io.AbcViewError, e:
-                    log.debug(str(e))
+                    abcview.log.debug(str(e))
                     _bad_files.append(filepath)
 
         # display a warning for bad files, bail if all are bad
         if len(_bad_files) > 0:
-            message("The follow files could not be loaded:\n%s" \
-                    %("\n".join(_bad_files)))
+            message('The follow files could not be loaded:\n{0}'.format('\n'.join(_bad_files)))
 
             if len(_bad_files) == len(self._load_files):
                 self.viewer.setDisabled(False)
@@ -930,24 +932,24 @@ class AbcView(QtGui.QMainWindow):
         io2gl(self.session, self.viewer)
 
         # item color range
-        COLORS = style.gen_colors(COUNT)
+        COLORS = abcview.style.gen_colors(COUNT)
         self.splash.progress.setMaximum(COUNT)
 
         # walk session looking for cameras and load them
         for index, item in enumerate(self.session.walk()):
-            self.splash.setMessage("loading %s" % item.name)
+            self.splash.setMessage('loading {0}'.format(item.name))
 
-            if item.type() in [GLCamera.type(), GLICamera.type()]:
+            if isinstance(item, (abcview.gl.GLCamera, abcview.gl.GLICamera)):
                 self.viewer.add_camera(item)
                 if item.loaded:
                     self.viewer.set_camera(item)
 
             # set display overrides
             else:
-                if self._overrides.get("mode") is not None:
-                    item.mode = self._overrides.get("mode")
+                if self._overrides.get('mode') is not None:
+                    item.mode = self._overrides.get('mode')
 
-                if not item.properties.get("color", None):
+                if not item.properties.get('color', None):
                     item.color = COLORS[index]
 
         # default frame range
@@ -959,27 +961,27 @@ class AbcView(QtGui.QMainWindow):
 
         # set the frame range from loaded files
         if len(self._load_files) == 1:
-            if self._load_files[0].endswith(Session.EXT):
+            if self._load_files[0].endswith(abcview.io.Session.EXT):
                 self.set_frames_from_session(self.session)
-            elif self._load_files[0].endswith(Scene.EXT) and \
-                 self._overrides.get("mode") != Mode.OFF:
+            elif (self._load_files[0].endswith(abcview.io.Scene.EXT) and
+                  self._overrides.get('mode') != abcview.io.Mode.OFF):
                 self.set_frames_from_scene(self.session.items[0])
 
         # frame range overrides
-        if self._overrides.get("frames_per_second"):
-            fps = self._overrides.get("frames_per_second")
+        if self._overrides.get('frames_per_second'):
+            fps = self._overrides.get('frames_per_second')
             self.viewer.state.frames_per_second = fps
             self.session.frames_per_second = fps
-        if self._overrides.get("first_frame"):
-            first_frame = self._overrides.get("first_frame")
+        if self._overrides.get('first_frame'):
+            first_frame = self._overrides.get('first_frame')
             self.viewer.state.min_frame = first_frame
             self.time_slider.set_minimum(first_frame)
-        if self._overrides.get("last_frame"):
-            last_frame = self._overrides.get("last_frame")
+        if self._overrides.get('last_frame'):
+            last_frame = self._overrides.get('last_frame')
             self.viewer.state.max_frame = last_frame
             self.time_slider.set_maximum(last_frame)
-        if self._overrides.get("current_frame"):
-            curr_frame = int(self._overrides.get("current_frame"))
+        if self._overrides.get('current_frame'):
+            curr_frame = int(self._overrides.get('current_frame'))
             self.viewer.state.current_frame = curr_frame
             self.time_slider.set_value(curr_frame)
 
@@ -992,20 +994,20 @@ class AbcView(QtGui.QMainWindow):
         # create trees for top-level session items, load items last
         for item in self.session.items:
             tree = None
-            if item.type() == Session.type():
-                tree = SessionTreeWidgetItem(self.objects_tree, item)
-            elif item.type() == GLScene.type():
-                tree = SceneTreeWidgetItem(self.objects_tree, item)
+            if isinstance(item, abcview.io.Session):
+                tree = abcview.widget.tree_widget.SessionTreeWidgetItem(self.objects_tree, item)
+            elif isinstance(item, abcview.gl.GLScene):
+                tree = abcview.widget.tree_widget.SceneTreeWidgetItem(self.objects_tree, item)
             if item.loaded and tree is not None:
                 tree.load()
             item.tree = tree
 
         # frame the viewer if we're just loading one abc file
-        if len(self._load_files) == 1 and self._load_files[0].endswith(Scene.EXT):
+        if len(self._load_files) == 1 and self._load_files[0].endswith(abcview.io.Scene.EXT):
             self.viewer.frame()
 
         self.viewer.setDisabled(False)
-        self.setWindowTitle("%s: %s" % (self.TITLE, self.session.name))
+        self.setWindowTitle('{0}: {1}'.format(self.TITLE, self.session.name))
 
     def _wait(self):
         """
@@ -1035,31 +1037,31 @@ class AbcView(QtGui.QMainWindow):
         """
         self.viewer.setDisabled(True)
 
-        if filepath.endswith(Session.EXT):
-            item = Session(filepath)
+        if filepath.endswith(abcview.io.Session.EXT):
+            item = abcview.io.Session(filepath)
             num_items = len(item.items)
             io2gl(item, self.viewer)
-        elif filepath.endswith(Scene.EXT):
-            item = GLScene(filepath)
+        elif filepath.endswith(abcview.io.Scene.EXT):
+            item = abcview.gl.GLScene(filepath)
             num_items = 1
 
         # update item from params override
         if overrides:
-            item.name = overrides.get("name", item.name)
-            item.loaded = overrides.get("loaded", item.loaded)
-            item.color = overrides.get("color", item.color)
-            item.properties.update(overrides.get("properties"))
+            item.name = overrides.get('name', item.name)
+            item.loaded = overrides.get('loaded', item.loaded)
+            item.color = overrides.get('color', item.color)
+            item.properties.update(overrides.get('properties'))
 
         self.session.add_item(item)
-        COLORS = style.gen_colors(num_items)
+        COLORS = abcview.style.gen_colors(num_items)
 
-        if self._overrides.get("mode") is not None:
-            item.mode = self._overrides.get("mode")
+        if self._overrides.get('mode') is not None:
+            item.mode = self._overrides.get('mode')
 
-        if item.type() == Session.type():
-            item = SessionTreeWidgetItem(self.objects_tree, item)
-        elif item.type() == GLScene.type():
-            item = SceneTreeWidgetItem(self.objects_tree, item)
+        if isinstance(item, abcview.io.Session):
+            item = abcview.widget.tree_widget.SessionTreeWidgetItem(self.objects_tree, item)
+        elif isinstance(item, abcview.gl.GLScene):
+            item = abcview.widget.tree_widget.SceneTreeWidgetItem(self.objects_tree, item)
         if item.object.loaded:
             item.load()
 
@@ -1082,7 +1084,7 @@ class AbcView(QtGui.QMainWindow):
             self.session.save(filepath)
         except Exception, e:
             traceback.print_exc()
-            message("Error saving file:\n\n%s" % str(e))
+            message('Error saving file:\n\n{0}'.format(str(e)))
 
     def load_script(self, script):
         """
@@ -1090,7 +1092,7 @@ class AbcView(QtGui.QMainWindow):
 
         :param script: code or path to file containing python code.
         """
-        log.debug("[%s.load_script] %s" % (self, script))
+        abcview.log.debug('[{0}.load_script] {1}'.format(self, script))
         if os.path.exists(script):
             self.console.runScript(script)
         else:
@@ -1116,7 +1118,7 @@ class AbcView(QtGui.QMainWindow):
         self.viewer.state.stop()
         if item is None:
             item = self.objects_tree.selectedItems()[0]
-        log.debug("[%s].handle_item_removed: %s" %(self, item))
+        abcview.log.debug('[{0}].handle_item_removed: {1}'.format(self, item))
         self.viewer.remove_scene(item.object)
         self.session.remove_item(item.object)
 
@@ -1194,7 +1196,7 @@ class AbcView(QtGui.QMainWindow):
         """
         Undrawabe scene signal handler.
 
-        :param scene: GLScene
+        :param scene: abcview.gl.GLScene
         """
         scene.tree.set_bad(True)
 
@@ -1203,10 +1205,10 @@ class AbcView(QtGui.QMainWindow):
         """
         handles adding a new camera to the session
 
-        :param camera: GLCamera
+        :param camera: abcview.gl.GLCamera
         """
-        log.debug("[%s.handle_new_camera] %s" % (self, camera))
-        if camera.name != "interactive":
+        abcview.log.debug('[{0}.handle_new_camera] {1}'.format(self, camera))
+        if camera.name != 'interactive':
             self.session.add_camera(camera)
 
     @make_dirty
@@ -1214,9 +1216,9 @@ class AbcView(QtGui.QMainWindow):
         """
         handles setting the camera name on the session
 
-        :param camera: GLCamera
+        :param camera: abcview.gl.GLCamera
         """
-        if camera.name != "interactive":
+        if camera.name != 'interactive':
             self.session.set_camera(camera)
 
     @make_dirty
@@ -1228,7 +1230,7 @@ class AbcView(QtGui.QMainWindow):
         """
         icamera = item.camera()
         if icamera.getName() not in [c.name for c in self.viewer.state.cameras]:
-            camera = GLICamera(self.viewer, icamera)
+            camera = abcview.gl.GLICamera(self.viewer, icamera)
             self.viewer.add_camera(camera)
             self.viewer.set_camera(camera.name)
         else:
@@ -1236,11 +1238,11 @@ class AbcView(QtGui.QMainWindow):
 
     def handle_scene_selected(self, scene):
         """
-        GLWidget scene selected handler.
+        abcview.widget.viewer_widget.GLWidget scene selected handler.
 
-        :param scene: GLScene
+        :param scene: abcview.gl.GLScene
         """
-        log.debug("[%s.handle_scene_selected] %s" % (self, scene))
+        abcview.log.debug('[{0}.handle_scene_selected] {1}'.format(self, scene))
         self.objects_tree.clearSelection()
         if scene:
             scene.tree.treeWidget().scrollToItem(scene.tree,
@@ -1251,11 +1253,11 @@ class AbcView(QtGui.QMainWindow):
     @wait
     def handle_object_selected(self, name):
         """
-        GLWidget object selected handler.
+        abcview.widget.viewer_widget.GLWidget object selected handler.
 
         :param name: name of object
         """
-        log.debug("[%s.handle_object_selected] %s" %(self, name))
+        abcview.log.debug('[{0}.handle_object_selected] {1}'.format(self, name))
         self.objects_tree.find(str(name.toAscii()))
 
     @wait
@@ -1287,7 +1289,7 @@ class AbcView(QtGui.QMainWindow):
 
         :param item: SceneTreeWidgetItem, SessionTreeWidgetItem
         """
-        if type(item) == SceneTreeWidgetItem:
+        if isinstance(item, abcview.widget.tree_widget.SceneTreeWidgetItem):
             item.object.selected = True
         self.viewer.updateGL()
 
@@ -1299,13 +1301,13 @@ class AbcView(QtGui.QMainWindow):
         :param item: SceneTreeWidgetItem, SessionTreeWidgetItem
         """
         def load(item):
-            if type(item) == SceneTreeWidgetItem:
+            if isinstance(item, abcview.widget.tree_widget.SceneTreeWidgetItem):
                 self.viewer.add_scene(item.object)
-            elif type(item) == SessionTreeWidgetItem:
+            elif isinstance(item, abcview.widget.tree_widget.SessionTreeWidgetItem):
                 for child in item.children():
                     load(child)
-        log.debug("[%s.handle_item_loaded] %s" % (self, item.object))
-        self.splash.setMessage("loading %s" % item.object.name)
+        abcview.log.debug('[{0}.handle_item_loaded] {1}'.format(self, item.object))
+        self.splash.setMessage('loading {0}'.format(item.object.name))
         self.splash.updateProgress(self.splash.progress.value() + 1)
         load(item)
 
@@ -1351,9 +1353,11 @@ class AbcView(QtGui.QMainWindow):
         """
         File->Open menud handler
         """
-        filepath = QtGui.QFileDialog.getOpenFileName(self, "Open File",
-                    os.getcwd(), ("Alembic Files (*.%s *.%s)"
-                        % (Scene.EXT, Session.EXT)))
+        filepath = QtGui.QFileDialog.getOpenFileName(self,
+                                                     'Open File',
+                                                     os.getcwd(),
+                                                     ('Alembic Files (*.%s *.{0})'.format((abcview.io.Scene.EXT,
+                                                                                           abcview.io.Session.EXT))))
         if filepath:
             self.clear()
             self.set_load_files([str(filepath.toAscii())])
@@ -1364,9 +1368,9 @@ class AbcView(QtGui.QMainWindow):
         """
         File->Import menud handler
         """
-        filepath = QtGui.QFileDialog.getOpenFileName(self, "Open File",
-                    os.getcwd(), ("Alembic Files (*.%s *.%s)"
-                        % (Scene.EXT, Session.EXT)))
+        filepath = QtGui.QFileDialog.getOpenFileName(self, 'Open File',
+                    os.getcwd(), ('Alembic Files (*.{0} *.{1})'.format(abcview.io.Scene.EXT,
+                                                                       abcview.io.Session.EXT)))
         if filepath:
             self.import_file(str(filepath.toAscii()))
 
@@ -1382,7 +1386,7 @@ class AbcView(QtGui.QMainWindow):
         """
         Frame all.
         """
-        log.debug("[%s.handle_frame_all]" % self)
+        abcview.log.debug('[{0}.handle_frame_all]'.format(self))
         self.viewer.frame()
 
     def handle_frame_scene(self, item):
@@ -1391,7 +1395,7 @@ class AbcView(QtGui.QMainWindow):
 
         :param item: SceneTreeWidgetItem
         """
-        log.debug("[%s.handle_frame_scene] %s" % (self, item))
+        abcview.log.debug('[{0}.handle_frame_scene] {1}'.format(self, item))
         bounds = item.object.bounds(self.viewer.state.current_time)
         self.viewer.frame(bounds)
 
@@ -1402,12 +1406,12 @@ class AbcView(QtGui.QMainWindow):
 
         :param item: ObjectTreeWidgetItem
         """
-        log.debug("[%s.handle_frame_object] %s" % (self, item))
+        abcview.log.debug('[{0}.handle_frame_object] {1}'.format(self, item))
         if item is None:
             obj = self.objects_tree.selected()
         else:
             obj = item.object
-        if obj.getFullName() == "/":
+        if obj.getFullName() == '/':
             self.handle_frame_scene()
         md = obj.getMetaData()
         if alembic.AbcGeom.IPolyMesh.matches(md) or \
@@ -1423,10 +1427,10 @@ class AbcView(QtGui.QMainWindow):
             return
 
         # get the final accumulated xform values
-        xf = get_final_matrix(meshObj)
+        xf = abcview.gl.get_final_matrix(meshObj)
         #iss = alembic.Abc.ISampleSelector(0)
         if not bounds_prop.valid():
-            message("Object has invalid or no bounds set.")
+            message('Object has invalid or no bounds set.')
             return
 
         # get the bounds value from the bounds property
@@ -1434,7 +1438,7 @@ class AbcView(QtGui.QMainWindow):
         index = ts.getNearIndex(self.viewer.state.current_time,
                         bounds_prop.getNumSamples())
         bounds = bounds_prop.getValue(index) #iss)
-        log.debug("bounds at index %s: %s" % (index, bounds))
+        abcview.log.debug('bounds at index {0}: {1}'.format(index, bounds))
 
         #TODO: apply local transforms when framing
         if 0:
@@ -1442,10 +1446,10 @@ class AbcView(QtGui.QMainWindow):
             max = bounds.max()
             item = self.objects_tree.selectedItems()[0]
             scene = item.scene().object
-            if scene.properties.get("translate"):
+            if scene.properties.get('translate'):
                 max = max * imath.V3d(*scene.translate)
                 min = min * imath.V3d(*scene.translate)
-            if scene.properties.get("scale"):
+            if scene.properties.get('scale'):
                 max = max * imath.V3d(*scene.scale)
                 min = min * imath.V3d(*scene.scale)
             bounds = imath.Box3d(min, max)
@@ -1459,8 +1463,8 @@ class AbcView(QtGui.QMainWindow):
             self.save_session()
 
     def handle_save_as(self):
-        filepath = QtGui.QFileDialog.getSaveFileName(self, "Save File",
-                    os.getcwd(), ("Alembic Files (*.%s)" % Session.EXT))
+        filepath = QtGui.QFileDialog.getSaveFileName(self, 'Save File',
+                    os.getcwd(), ('Alembic Files (*.{0})'.format(abcview.io.Session.EXT)))
         if filepath:
             self.save_session(str(filepath.toAscii()))
 
@@ -1481,12 +1485,12 @@ class AbcView(QtGui.QMainWindow):
                 self.handle_frame_all()
             else:
                 item = self.objects_tree.selectedItems()[0]
-                if type(item) == SceneTreeWidgetItem:
+                if isinstance(item, abcview.widget.tree_widget.SceneTreeWidgetItem):
                     self.handle_frame_scene(item)
-                elif type(item) == ObjectTreeWidgetItem:
+                elif isinstance(item, abcview.widget.tree_widget.ObjectTreeWidgetItem):
                     self.handle_frame_object(item)
                 else:
-                    log.debug("Can't frame this object: %s" % item)
+                    abcview.log.debug('Can\'t frame this object: {0}'.format(item))
         elif event.key() == QtCore.Qt.Key_Space:
             if self.time_slider.playing:
                 self.handle_stop()
@@ -1500,7 +1504,7 @@ class AbcView(QtGui.QMainWindow):
 
     def closeEvent(self, event):
         if self.session and self.session.is_dirty():
-            resp = self.confirm_close("This session has changed.")
+            resp = self.confirm_close('This session has changed.')
             if resp == QtGui.QMessageBox.Cancel:
                 event.ignore()
                 return
@@ -1510,7 +1514,7 @@ class AbcView(QtGui.QMainWindow):
 
 class App(QtGui.QApplication):
     """
-    QApplication subclass that emits a "startup" signal after
+    QApplication subclass that emits a 'startup' signal after
     the event loop has started. This may trigger deferred
     file loading, among other things.
     """
@@ -1547,9 +1551,11 @@ def version_check():
     if int(major) >= MAJOR and int(minor) >= MINOR:
         return 1
     else:
-        print "%s %s requires Alembic %s.%s.%s or greater" \
-                % (config.__prog__, config.__version__, \
-                   MAJOR, MINOR, MAINT)
+        print '{0} {1} requires Alembic {2}.{3}.{4} or greater'.format(abcview.config.__prog__,
+                                                                       abcview.config.__version__,
+                                                                       MAJOR,
+                                                                       MINOR,
+                                                                       MAINT)
         return 0
 
 def create_app(files = None,
@@ -1588,7 +1594,7 @@ def create_app(files = None,
 
     # verbosity
     if verbose:
-        log.setLevel(logging.DEBUG)
+        abcview.log.setLevel(logging.DEBUG)
 
     # settings
     if reset:
@@ -1604,8 +1610,8 @@ def create_app(files = None,
 
     # force scene bounds
     if bounds:
-        win.set_default_mode(Mode.OFF)
-        win.viewer.camera.mode = Mode.OFF
+        win.set_default_mode(abcview.io.Mode.OFF)
+        win.viewer.camera.mode = abcview.io.Mode.OFF
         win.viewer.camera.draw_bounds = 1
     elif mode is not None:
         win.set_default_mode(mode)
