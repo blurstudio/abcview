@@ -601,7 +601,7 @@ class AbcTreeWidget(DeselectableTreeWidget):
         self._item.editor = editor
         self.setItemWidget(item, colnum, editor)
         self.SIGNAL_ITEM_DOUBLECLICKED.emit(item)
-        self._item.old_value = str(self._item.editor.text().toAscii())
+        self._item.old_value = str(self._item.editor.text())
         #editor.textEdited.connect(self.handle_value_change)
         editor.editingFinished.connect(self.handle_done_editing)
 
@@ -611,7 +611,7 @@ class AbcTreeWidget(DeselectableTreeWidget):
         """
         if not self._item or not value:
             return
-        value = str(value.toAscii())
+        value = str(value)
         if isinstance(self._item, (SessionTreeWidgetItem, SceneTreeWidgetItem)):
             self._item.object.name = value
             self._item.setText('name', value)
@@ -631,7 +631,7 @@ class AbcTreeWidget(DeselectableTreeWidget):
         def s2f(val):
             return [float(v.strip()) for v in val.split(",")]
 
-        new_value = str(self._item.editor.text().toAscii())
+        new_value = str(self._item.editor.text())
 
         if isinstance(self._item, (SessionTreeWidgetItem, SceneTreeWidgetItem)):
             column = 'name'
@@ -808,7 +808,7 @@ class ObjectTreeWidget(AbcTreeWidget):
         :param mode: abcview.io.Mode enum value
         """
         if self.sender(): # via menu action
-            mode = self.sender().data().toInt()[0]
+            mode = self.sender().data()[0]
 
         self.setCursor(QtCore.Qt.WaitCursor)
         item = self.selectedItems()[0]

@@ -721,7 +721,7 @@ class AbcView(QtWidgets.QMainWindow):
         self.viewer.restoreGeometry(self.settings.value('geometry').toByteArray())
 
         # drawing mode
-        mode, found = self.settings.value('draw_mode').toInt()
+        mode, found = self.settings.value('draw_mode')
         if found:
             self.viewer.mode = mode
 
@@ -1271,7 +1271,7 @@ class AbcView(QtWidgets.QMainWindow):
         if text is None:
             text = self.find_line_edit.text()
         if text:
-            self.find(str(text.toAscii()))
+            self.find(str(text))
 
     def handle_object_selection(self):
         for scene in self.viewer.state.scenes:
@@ -1468,7 +1468,7 @@ class AbcView(QtWidgets.QMainWindow):
         filepath = QtWidgets.QFileDialog.getSaveFileName(self, 'Save File',
                     os.getcwd(), ('Alembic Files (*.{0})'.format(abcview.io.Session.EXT)))
         if filepath:
-            self.save_session(str(filepath.toAscii()))
+            self.save_session(str(filepath))
 
     ## base class overrides
 
