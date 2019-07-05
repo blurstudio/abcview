@@ -170,7 +170,7 @@ class QScriptAction(QtWidgets.QGroupBox):
         super(QScriptAction, self).__init__()
         self.action = action
         self.layout = QtWidgets.QHBoxLayout()
-        self.layout.setMargin(0)
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
         self.label = QtWidgets.QPushButton(os.path.basename(name))
         self.button = QtWidgets.QPushButton()
@@ -435,7 +435,7 @@ class Splash(QtWidgets.QSplashScreen):
         # layout
         layout = QtWidgets.QVBoxLayout()
         layout.setSpacing(0)
-        layout.setMargin(0)
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.logo)
         self.text = QtWidgets.QLineEdit()
         self.progress = QtWidgets.QProgressBar()
@@ -514,7 +514,7 @@ class AbcView(QtWidgets.QMainWindow):
 
         self.find_line_edit = FindLineEdit(self)
         self.objects_group.layout().setSpacing(0)
-        self.objects_group.layout().setMargin(0)
+        self.objects_group.layout().setContentsMargins(0, 0, 0, 0)
         self.objects_group.layout().addWidget(self.find_line_edit)
         self.objects_group.layout().addWidget(self.objects_tree)
 
@@ -542,7 +542,7 @@ class AbcView(QtWidgets.QMainWindow):
         self.viewer_group = QtWidgets.QGroupBox(self)
         self.viewer_group.setLayout(QtWidgets.QVBoxLayout())
         self.viewer_group.layout().setSpacing(0)
-        self.viewer_group.layout().setMargin(0)
+        self.viewer_group.layout().setContentsMargins(0, 0, 0, 0)
         self.viewer_group.layout().addWidget(self.viewer)
         self.main_menu.setFocusProxy(self.viewer)
 

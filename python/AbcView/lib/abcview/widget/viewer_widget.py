@@ -143,7 +143,7 @@ def create_viewer_app(filepath=None):
     viewer_group = QtWidgets.QGroupBox()
     viewer_group.setLayout(QtWidgets.QVBoxLayout())
     viewer_group.layout().setSpacing(0)
-    viewer_group.layout().setMargin(0)
+    viewer_group.layout().setContentsMargins(0, 0, 0, 0)
     viewer_group.layout().addWidget(viewer)
     viewer_group.setWindowTitle('GLWidget')
 
@@ -711,14 +711,14 @@ class GLWidget(QtOpenGL.QGLWidget):
         group1 = QtWidgets.QGroupBox()
         group1.setLayout(QtWidgets.QVBoxLayout())
         group1.layout().setSpacing(0)
-        group1.layout().setMargin(0)
+        group1.layout().setContentsMargins(0, 0, 0, 0)
         group1.layout().addWidget(item.widget())
 
         # right/bottom viewer group
         group2 = QtWidgets.QGroupBox()
         group2.setLayout(QtWidgets.QVBoxLayout())
         group2.layout().setSpacing(0)
-        group2.layout().setMargin(0)
+        group2.layout().setContentsMargins(0, 0, 0, 0)
 
         new_viewer = GLWidget(self._main, state=self.state)
 
