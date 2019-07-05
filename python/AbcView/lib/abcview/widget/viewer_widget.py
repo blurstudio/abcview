@@ -976,7 +976,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             text, ok = QtGui.QInputDialog.getText(self,
                                                   'New Camera',
                                                   'Camera Name:',
-                                                  QtGui.QLineEdit.Normal)
+                                                  QtWidgets.QLineEdit.Normal)
             if ok and not text.isEmpty():
                 name = str(text.toAscii())
                 camera = abcview.gl.GLCamera(self, name)

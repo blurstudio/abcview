@@ -200,12 +200,12 @@ class TimeSlider(QtWidgets.QGroupBox):
 
         # labels
         validator = QtGui.QIntValidator(self)
-        self.first_frame_label = QtGui.QLineEdit()
+        self.first_frame_label = QtWidgets.QLineEdit()
         self.first_frame_label.setFixedSize(40, 20)
         self.first_frame_label.setMaxLength(4)
         self.first_frame_label.setValidator(validator)
         self.first_frame_label.setAlignment(QtCore.Qt.AlignHCenter)
-        self.last_frame_label = QtGui.QLineEdit()
+        self.last_frame_label = QtWidgets.QLineEdit()
         self.last_frame_label.setFixedSize(40, 20)
         self.last_frame_label.setMaxLength(4)
         self.last_frame_label.setValidator(validator)
