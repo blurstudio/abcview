@@ -883,7 +883,7 @@ class AbcView(QtWidgets.QMainWindow):
             traceback.print_exc()
             abcview.log.error(e)
 
-        abcview.log.debug('session loaded in {0:.2fs}'.format(time.time() - start))
+        abcview.log.debug('session loaded in {0:.2f}'.format(time.time() - start))
         self.splash.close()
         self.time_slider.SIGNAL_FRAME_CHANGED.connect(self.handle_time_slider_change)
 
