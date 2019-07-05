@@ -1366,11 +1366,15 @@ class AbcView(QtWidgets.QMainWindow):
         """
         File->Import menud handler
         """
-        filepath = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File',
-                    os.getcwd(), ('Alembic Files (*.{0} *.{1})'.format(abcview.io.Scene.EXT,
-                                                                       abcview.io.Session.EXT)))
+        filepath = QtWidgets.QFileDialog.getOpenFileName(self,
+                                                         'Open File',
+                                                         os.getcwd(),
+                                                         ('Alembic Files (*.{0} *.{1})'.format(abcview.io.Scene.EXT,
+                                                                                               abcview.io.Session.EXT)))
+        filepath = str(filepath[0])
+
         if filepath:
-            self.import_file(str(filepath.toAscii()))
+            self.import_file(filepath)
 
     @make_clean
     def handle_reload(self):
