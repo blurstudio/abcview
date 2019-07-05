@@ -53,32 +53,32 @@ except:
     from PySide2.QtCore import Signal as Signal
 
 import numpy
-import numpy.linalg as linalg
 import OpenGL
 OpenGL.ERROR_CHECKING = True
-from OpenGL.GL import *
-from OpenGL.GLU import *
+import OpenGL.GL
+import OpenGL.GLU
 
 # flag opengl errors
-from OpenGL.arrays import numpymodule
-numpymodule.NumpyHandler.ERROR_ON_COPY = True
+import OpenGL.arrays
+OpenGL.arrays.numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
 import imath
 import alembic
 
 import abcview
-from abcview.io import Mode
-from abcview.gl import GLCamera, GLICamera, GLScene
-from abcview.gl import get_final_matrix
-from abcview import log, style, config
+import abcview.io.Mode
+import abcview.gl.GLCamera
+import abcview.gl.GLICamera
+import abcview.gl.GLScene
+import abcview.gl
 
 # GL drawing mode map
 GL_MODE_MAP = {
-    Mode.OFF: 0,
-    Mode.BOUNDS: 1,
-    Mode.FILL: GL_FILL,
-    Mode.LINE: GL_LINE,
-    Mode.POINT: GL_POINT
+    abcview.io.Mode.OFF: 0,
+    abcview.io.Mode.BOUNDS: 1,
+    abcview.io.Mode.FILL: OpenGL.GL.GL_FILL,
+    abcview.io.Mode.LINE: OpenGL.GL.GL_LINE,
+    abcview.io.Mode.POINT: OpenGL.GL.GL_POINT
 }
 
 def update_camera(func):
@@ -112,23 +112,23 @@ def set_diffuse_light():
 
     lmodel_ambient = (0.2, 0.2, 0.2, 1.0)
 
-    glEnable(GL_LIGHTING)
-    glEnable(GL_LIGHT0)
-    glShadeModel(GL_SMOOTH)
+    OpenGL.GL.glEnable(OpenGL.GL.GL_LIGHTING)
+    OpenGL.GL.glEnable(OpenGL.GL.GL_LIGHT0)
+    OpenGL.GL.glShadeModel(OpenGL.GL.GL_SMOOTH)
 
-    glEnable(GL_DEPTH_TEST)
+    OpenGL.GL.glEnable(OpenGL.GL.GL_DEPTH_TEST)
     
-    #glLightfv(GL_LIGHT0, GL_AMBIENT, ambient)
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse)
+    #OpenGL.GL.glLightfv(OpenGL.GL.GL_LIGHT0, GL_AMBIENT, ambient)
+    OpenGL.GL.glLightfv(OpenGL.GL.GL_LIGHT0, OpenGL.GL.GL_DIFFUSE, diffuse)
 
-    glMaterialfv(GL_FRONT, GL_SHININESS, front_mat_shininess)
-    glMaterialfv(GL_FRONT, GL_SPECULAR, front_mat_specular)
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, front_mat_diffuse)
-    glMaterialfv(GL_BACK, GL_SHININESS, back_mat_shininess)
-    glMaterialfv(GL_BACK, GL_SPECULAR, back_mat_specular)
-    glMaterialfv(GL_BACK, GL_DIFFUSE, back_mat_diffuse)
+    OpenGL.GL.glMaterialfv(OpenGL.GL.GL_FRONT, OpenGL.GL.GL_SHININESS, front_mat_shininess)
+    OpenGL.GL.glMaterialfv(OpenGL.GL.GL_FRONT, OpenGL.GL.GL_SPECULAR, front_mat_specular)
+    OpenGL.GL.glMaterialfv(OpenGL.GL.GL_FRONT, OpenGL.GL.GL_DIFFUSE, front_mat_diffuse)
+    OpenGL.GL.glMaterialfv(OpenGL.GL.GL_BACK, OpenGL.GL.GL_SHININESS, back_mat_shininess)
+    OpenGL.GL.glMaterialfv(OpenGL.GL.GL_BACK, OpenGL.GL.GL_SPECULAR, back_mat_specular)
+    OpenGL.GL.glMaterialfv(OpenGL.GL.GL_BACK, OpenGL.GL.GL_DIFFUSE, back_mat_diffuse)
 
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambient)
+    OpenGL.GL.glLightModelfv(OpenGL.GL.GL_LIGHT_MODEL_AMBIENT, lmodel_ambient)
     
 def create_viewer_app(filepath=None):
     """
@@ -138,8 +138,8 @@ def create_viewer_app(filepath=None):
         >>> create_viewer_app('file.abc')
 
     """
-    from abcview.app import App
-    app = App(sys.argv)
+    import abcview.app
+    app = abcview.app.App(sys.argv)
 
     # create the viewer widget
     viewer = GLWidget()
@@ -170,7 +170,7 @@ def create_viewer_app(filepath=None):
 
 def message(info):
     dialog = QtGui.QMessageBox()
-    dialog.setStyleSheet(style.DIALOG)
+    dialog.setStyleSheet(abcview.style.DIALOG)
     dialog.setText(info)
     dialog.exec_()
 
@@ -218,7 +218,7 @@ class GLState(QtCore.QObject):
         """
         Clears the current state.
         """
-        log.debug('[{0}.clear]'.format(self))
+        abcview.log.debug('[{0}.clear]'.format(self))
 
         # stores all the GLScene objects
         self.__scenes = []
@@ -247,7 +247,7 @@ class GLState(QtCore.QObject):
         return self.__cameras.values()
 
     def _set_cameras(self):
-        log.debug('use add_camera()')
+        abcview.log.debug('use add_camera()')
 
     cameras = property(_get_cameras, _set_cameras, doc='cameras')
 
@@ -255,7 +255,7 @@ class GLState(QtCore.QObject):
         return self.__scenes
 
     def _set_scenes(self):
-        log.debug('use add_scene() to add scenes')
+        abcview.log.debug('use add_scene() to add scenes')
 
     scenes = property(_get_scenes, _set_scenes, doc='scenes')
 
@@ -265,8 +265,8 @@ class GLState(QtCore.QObject):
 
         :param scene: GLScene object
         """
-        log.debug('[{0}.add_scene] {1}'.format(self, scene))
-        if type(scene) == GLScene:
+        abcview.log.debug('[{0}.add_scene] {1}'.format(self, scene))
+        if type(scene) == abcview.gl.GLScene:
             if scene not in self.__scenes:
                 scene.state = self
                 self.__scenes.append(scene)
@@ -281,8 +281,8 @@ class GLState(QtCore.QObject):
 
         :param filepath: path to file to add
         """
-        log.debug('[{0}.add_file] {1}'.format(self, filepath))
-        self.add_scene(GLScene(filepath))
+        abcview.log.debug('[{0}.add_file] {1}'.format(self, filepath))
+        self.add_scene(abcview.gl.GLScene(filepath))
 
     def remove_scene(self, scene):
         """
@@ -290,7 +290,7 @@ class GLState(QtCore.QObject):
 
         :param scene: GLScene to remove.
         """
-        log.debug('[{0}.remove_scene] {1}'.format(self, scene))
+        abcview.log.debug('[{0}.remove_scene] {1}'.format(self, scene))
         scene.visible = False
         if scene in self.__scenes:
             self.__scenes.remove(scene)
@@ -302,7 +302,7 @@ class GLState(QtCore.QObject):
 
         :param camera: GLCamera object
         """
-        log.debug('[{0}.add_camera] {1}'.format(self, camera))
+        abcview.log.debug('[{0}.add_camera] {1}'.format(self, camera))
         if camera and camera.name not in self.__cameras.keys():
             self.__cameras[camera.name] = camera
             return True
@@ -333,7 +333,7 @@ class GLState(QtCore.QObject):
 
     def _set_time(self, new_time):
         if new_time is None:
-            log.warn('time is None')
+            abcview.log.warn('time is None')
             return
         self.__time = new_time
         self.__frame = new_time * self.frames_per_second
@@ -365,7 +365,7 @@ class GLState(QtCore.QObject):
 
     def _set_min_time(self, value):
         self.__min = value
-        log.debug('[{0}._set_min_time] {1}'.format(self, self.__min))
+        abcview.log.debug('[{0}._set_min_time] {1}'.format(self, self.__min))
 
     min_time = property(_get_min_time, _set_min_time, doc='set/get minimum time')
 
@@ -374,7 +374,7 @@ class GLState(QtCore.QObject):
 
     def _set_max_time(self, value):
         self.__max = value
-        log.debug('[{0}._set_min_time] {1}'.format(self, self.__max))
+        abcview.log.debug('[{0}._set_min_time] {1}'.format(self, self.__max))
 
     max_time = property(_get_max_time, _set_max_time, doc='set/get maximum time')
 
@@ -493,8 +493,8 @@ class GLWidget(QtOpenGL.QGLWidget):
     #TODO: check if all signals used
 
     # scene signals
-    SIGNAL_SCENE_OPENED = Signal(GLScene)
-    SIGNAL_SCENE_REMOVED = Signal(GLScene)
+    SIGNAL_SCENE_OPENED = Signal(abcview.gl.GLScene)
+    SIGNAL_SCENE_REMOVED = Signal(abcview.gl.GLScene)
     SIGNAL_SCENE_ERROR = Signal(str)
     SIGNAL_SCENE_DRAWN = Signal()
 
@@ -504,12 +504,12 @@ class GLWidget(QtOpenGL.QGLWidget):
     SIGNAL_CAMERA_UPDATED = Signal(object)
 
     # selection signals
-    SIGNAL_SCENE_SELECTED = Signal(GLScene)
+    SIGNAL_SCENE_SELECTED = Signal(abcview.gl.GLScene)
     SIGNAL_OBJECT_SELECTED = Signal(str)
     SIGNAL_CLEAR_SELECTION = Signal()
 
     # error signals
-    SIGNAL_UNDRAWABLE_SCENE = Signal(GLScene, float)
+    SIGNAL_UNDRAWABLE_SCENE = Signal(abcview.gl.GLScene, float)
 
     def __init__(self, parent=None, state=None):
         """
@@ -538,7 +538,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         self.__last_p2d = QtCore.QPoint()
         self.__last_p3d = [1.0, 0.0, 0.0]
         self.__rotating = False
-        self.__mode = GL_SELECT
+        self.__mode = OpenGL.GL.GL_SELECT
 
         # viewers must have at least one camera
         self.setup_default_camera()
@@ -554,7 +554,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         Creates the default interactive camera for this view (and others if the
         state is shared between viewers).
         """
-        self.add_camera(GLCamera(self, name='interactive'))
+        self.add_camera(abcview.gl.GLCamera(self, name='interactive'))
         self.set_camera('interactive')
 
     def clear(self):
@@ -571,7 +571,7 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         :param filepath: path to Alembic file.
         """
-        self.add_scene(GLScene(filepath))
+        self.add_scene(abcview.gl.GLScene(filepath))
 
     def add_scene(self, scene):
         """
@@ -579,7 +579,7 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         :param scene: GLScene object
         """
-        log.debug('[{0}.add_scene] {1}'.format(self, scene))
+        abcview.log.debug('[{0}.add_scene] {1}'.format(self, scene))
         self.state.add_scene(scene)
         self.SIGNAL_SCENE_OPENED.emit(scene)
         self.updateGL()
@@ -590,7 +590,7 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         :param scene: GLScene to remove.
         """
-        log.debug('[{0}.remove_scene] {1}'.format(self, scene))
+        abcview.log.debug('[{0}.remove_scene] {1}'.format(self, scene))
         self.state.remove_scene(scene)
         self.SIGNAL_SCENE_REMOVED.emit(scene)
         self.updateGL()
@@ -599,7 +599,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         """
         :param camera: GLCamera object
         """
-        log.debug('[{0}.add_camera] {1}'.format(self, camera))
+        abcview.log.debug('[{0}.add_camera] {1}'.format(self, camera))
         if self.state.add_camera(camera):
             camera.add_view(self)
             self.SIGNAL_NEW_CAMERA.emit(camera)
@@ -608,7 +608,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         """
         :param camera: GLCamera object to remove
         """
-        log.debug('[{0}.remove_camera] {1}'.format(self, camera))
+        abcview.log.debug('[{0}.remove_camera] {1}'.format(self, camera))
         self.state.remove_camera(camera)
         self.SIGNAL_STATE_CHANGE.emit()
 
@@ -619,12 +619,12 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         :param camera: Name of camera or GLCamera object
         """
-        log.debug('[{0}.set_camera] {1}'.format(self, camera))
+        abcview.log.debug('[{0}.set_camera] {1}'.format(self, camera))
         if type(camera) in [str, unicode]:
             if '/' in camera:
                 camera = os.path.split('/')[-1]
             elif camera not in [cam.name for cam in self.state.cameras]:
-                log.warn('camera not found: {0}'.format(camera))
+                abcview.log.warn('camera not found: {0}'.format(camera))
                 return
             self.camera = self.state.get_camera(camera)
         else:
@@ -679,8 +679,8 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         :param bounds: imath.Box3d bounds object.
         """
-        log.debug('[{0}.frame] {1}'.format(self, bounds))
-        if self.camera.type() == GLICamera.type():
+        abcview.log.debug('[{0}.frame] {1}'.format(self, bounds))
+        if self.camera.type() == abcview.gl.GLICamera.type():
             message('''Can\'t frame when viewing through ICameras.\nSelect or create a new camera.''')
             return
         if bounds is None:
@@ -786,7 +786,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         """
         Paints normals for polys and subds.
         """
-        glColor3f(1, 1, 1)
+        OpenGL.GL.glColor3f(1, 1, 1)
         def _draw(obj):
             md = obj.getMetaData()
             if alembic.AbcGeom.IPolyMesh.matches(md) or alembic.AbcGeom.ISubD.matches(md):
@@ -806,23 +806,23 @@ class GLWidget(QtOpenGL.QGLWidget):
                 faces = facesProp.getValue(index)
                 points = pointsProp.getValue(index)
                 normals = normalsProp.getValue(index)
-                xf = get_final_matrix(meshObj, self.state.current_time)
+                xf = abcview.gl.get_final_matrix(meshObj, self.state.current_time)
 
                 for i, fi in enumerate(faces):
                     p = points[fi] * xf
                     n = normals[i]
                     v = p + n
-                    glBegin(GL_LINES)
-                    glColor3f(0, 1, 0)
-                    glVertex3f(p[0], p[1], p[2])
-                    glVertex3f(v[0], v[1], v[2])
-                    glEnd()
+                    OpenGL.GL.glBegin(OpenGL.GL.GL_LINES)
+                    OpenGL.GL.glColor3f(0, 1, 0)
+                    OpenGL.GL.glVertex3f(p[0], p[1], p[2])
+                    OpenGL.GL.glVertex3f(v[0], v[1], v[2])
+                    OpenGL.GL.glEnd()
         
             for child in obj.children:
                 try:
                     _draw(child)
                 except Exception, e:
-                    log.warn('unhandled exception: {0}'.format(e))
+                    abcview.log.warn('unhandled exception: {0}'.format(e))
 
         for scene in self.state.scenes:
             _draw(scene.top())
@@ -831,51 +831,51 @@ class GLWidget(QtOpenGL.QGLWidget):
         """
         Paints the grid.
         """
-        glDisable(GL_LIGHTING)
-        glColor3f(0.5, 0.5, 0.5)
+        OpenGL.GL.glDisable(OpenGL.GL.GL_LIGHTING)
+        OpenGL.GL.glColor3f(0.5, 0.5, 0.5)
         for x in range(-10, 11):
             if x == 0:
                 continue
-            glBegin(GL_LINES)
-            glVertex3f(x, 0, -10)
-            glVertex3f(x, 0, 10)
-            glVertex3f(-10, 0, x)
-            glVertex3f(10, 0, x)
-            glEnd()
+            OpenGL.GL.glBegin(OpenGL.GL.GL_LINES)
+            OpenGL.GL.glVertex3f(x, 0, -10)
+            OpenGL.GL.glVertex3f(x, 0, 10)
+            OpenGL.GL.glVertex3f(-10, 0, x)
+            OpenGL.GL.glVertex3f(10, 0, x)
+            OpenGL.GL.glEnd()
         
-        glBegin(GL_LINES)
-        glVertex3f(0, 0, -10)
-        glVertex3f(0, 0, 10)
-        glVertex3f(-10, 0, 0)
-        glVertex3f(10, 0, 0)
-        glEnd()
+        OpenGL.GL.glBegin(OpenGL.GL.GL_LINES)
+        OpenGL.GL.glVertex3f(0, 0, -10)
+        OpenGL.GL.glVertex3f(0, 0, 10)
+        OpenGL.GL.glVertex3f(-10, 0, 0)
+        OpenGL.GL.glVertex3f(10, 0, 0)
+        OpenGL.GL.glEnd()
 
     def _paint_hud(self):
         """
         Paints the heads-up-display information.
         """
-        glColor3f(1, 1, 1)
+        OpenGL.GL.glColor3f(1, 1, 1)
         def _format(array):
             return ', '.join(['{0:.02f}'.format(f) for f in array])
 
-        glViewport(0, 0, self.width(), self.height())
+        OpenGL.GL.glViewport(0, 0, self.width(), self.height())
         
         # draw the camera name
-        glColor3f(0.5, 1, 0.5)
+        OpenGL.GL.glColor3f(0.5, 1, 0.5)
         if self.camera.fixed:
             self.renderText(15, 20, '{0} [{1:.02f}]'.format(self.camera.name, self.camera.aspect_ratio))
         else:
             self.renderText(15, 20, str(self.camera.name))
 
         # draw the camera info
-        glColor3f(0.6, 0.6, 0.6)
+        OpenGL.GL.glColor3f(0.6, 0.6, 0.6)
         font = QtGui.QFont(GLWidget.FONT_NAME, 8)
         self.renderText(15, 35, 'T [{0}]'.format(_format(self.camera.translation), font))
         self.renderText(15, 50, 'R [{0}]'.format(_format(self.camera.rotation), font))
         self.renderText(15, 66, 'S [{0}]'.format(_format(self.camera.scale), font))
 
         # draw the FPS info
-        glColor3f(0.7, 0.7, 0.7)
+        OpenGL.GL.glColor3f(0.7, 0.7, 0.7)
         font = QtGui.QFont(GLWidget.FONT_NAME, 9)
         self.renderText(self.width()-100,
                         self.height()-10,
@@ -883,7 +883,7 @@ class GLWidget(QtOpenGL.QGLWidget):
                                                        self.state.frames_per_second),
                         font)
 
-        glColor3f(1, 1, 1)
+        OpenGL.GL.glColor3f(1, 1, 1)
 
     def _paint_fixed(self):
         """
@@ -913,13 +913,13 @@ class GLWidget(QtOpenGL.QGLWidget):
             h = self.height()
         
         # do some GL stuff
-        glViewport(x, y, w, h)
+        OpenGL.GL.glViewport(x, y, w, h)
         self.makeCurrent()
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-        gluPerspective(self.camera.fovy, camera_aspect_ratio,
+        OpenGL.GL.glMatrixMode(OpenGL.GL.GL_PROJECTION)
+        OpenGL.GL.glLoadIdentity()
+        OpenGL.GLU.gluPerspective(self.camera.fovy, camera_aspect_ratio,
                        self.camera.near, self.camera.far)
-        glMatrixMode(GL_MODELVIEW)
+        OpenGL.GL.glMatrixMode(OpenGL.GL.GL_MODELVIEW)
 
     def set_camera_clipping_planes(self, near=None, far=None):
         self.camera.set_clipping_planes(self.camera.near, self.camera.far)
@@ -934,7 +934,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             v3d[1] = y
             z2 = 2.0 * 0.5 * 0.5 - x * x - y * y
             v3d[2] = math.sqrt(max( z2, 0.0 ))
-            n = linalg.norm(v3d)
+            n = numpy.linalg.norm(v3d)
             v3d = numpy.array(v3d) / float(n)
             return True, v3d
         else:
@@ -975,14 +975,14 @@ class GLWidget(QtOpenGL.QGLWidget):
         :param action: QAction object
         """
         action_name = str(action.text().toAscii())
-        if action_name == "New":
+        if action_name == 'New':
             text, ok = QtGui.QInputDialog.getText(self,
                                                   'New Camera',
                                                   'Camera Name:',
                                                   QtGui.QLineEdit.Normal)
             if ok and not text.isEmpty():
                 name = str(text.toAscii())
-                camera = GLCamera(self, name)
+                camera = abcview.gl.GLCamera(self, name)
                 self.add_camera(camera)
                 self.set_camera(name)
 
@@ -996,7 +996,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         :param y: mouse y position
         :return: list of GLScene objects
         """
-        log.debug('[{0}.selection] {1} {2} {3}'.format(self, x, y, self.camera))
+        abcview.log.debug('[{0}.selection] {1} {2} {3}'.format(self, x, y, self.camera))
 
         self.setDisabled(True)
 
@@ -1032,19 +1032,19 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         #viewport = glGetIntegerv(GL_VIEWPORT)
         viewport = [_x, _y, w, h]
-        buffer = glSelectBuffer(MaxSize)
+        buffer = OpenGL.GL.glSelectBuffer(MaxSize)
 
-        glRenderMode(GL_SELECT)
-        glInitNames()
+        OpenGL.GL.glRenderMode(OpenGL.GL.GL_SELECT)
+        OpenGL.GL.glInitNames()
 
         # adjust mouse y value
         if self.camera.fixed:
             y = y - (_y * 2)
 
-        glMatrixMode(GL_PROJECTION)
-        glPushMatrix()
-        glLoadIdentity()
-        gluPickMatrix(x, (viewport[3] - y), 5.0, 5.0, viewport)
+        OpenGL.GL.glMatrixMode(OpenGL.GL.GL_PROJECTION)
+        OpenGL.GL.glPushMatrix()
+        OpenGL.GL.glLoadIdentity()
+        OpenGL.GLU.gluPickMatrix(x, (viewport[3] - y), 5.0, 5.0, viewport)
 
         # adjust ratio for fixed cameras
         if self.camera.fixed:
@@ -1052,7 +1052,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         else:
             ratio = self.aspect_ratio()
 
-        gluPerspective(self.camera.fovy, camera_aspect_ratio, 
+        OpenGL.GLU.gluPerspective(self.camera.fovy, camera_aspect_ratio, 
                        self.camera.near, self.camera.far)
 
         # draw the scenes
@@ -1065,31 +1065,31 @@ class GLWidget(QtOpenGL.QGLWidget):
             #TODO: pick on translated scenes
             # push local transforms
             if scene.has_xform_overrides():
-                glPushMatrix()
-                glTranslatef(*scene.translate)
-                glRotatef(*scene.rotate)
-                glScalef(*scene.scale)
+                OpenGL.GL.glPushMatrix()
+                OpenGL.GL.glTranslatef(*scene.translate)
+                OpenGL.GL.glRotatef(*scene.rotate)
+                OpenGL.GL.glScalef(*scene.scale)
 
             # pick anywhere within the scene bounds
-            if scene.mode != Mode.OFF:
-                mode = GL_POLYGON
+            if scene.mode != abcview.io.Mode.OFF:
+                mode = OpenGL.GL.GL_POLYGON
 
             # pick just on the bounding box edges
             else:
-                mode = GL_LINES
+                mode = OpenGL.GL.GL_LINES
             
             # draw scene bounds
             scene.draw_bounds(self.state.current_time, mode)
 
             # pop local transforms
             if scene.has_xform_overrides():
-                glPopMatrix()
+                OpenGL.GL.glPopMatrix()
 
-        #glMatrixMode(GL_PROJECTION)
-        glPopMatrix()
+        #OpenGL.GL.glMatrixMode(OpenGL.GL.GL_PROJECTION)
+        OpenGL.GL.glPopMatrix()
 
         # get the list of gl picks
-        hits = glRenderMode(GL_RENDER)
+        hits = OpenGL.GL.glRenderMode(OpenGL.GL.GL_RENDER)
 
         self.setDisabled(False)
 
@@ -1116,13 +1116,13 @@ class GLWidget(QtOpenGL.QGLWidget):
 
     def initializeGL(self):
         self.makeCurrent()
-        glPointSize(1.0)
-        glEnable(GL_AUTO_NORMAL)
-        glEnable(GL_COLOR_MATERIAL)
-        glEnable(GL_NORMALIZE)
-        glDisable(GL_CULL_FACE)
-        glShadeModel(GL_SMOOTH)
-        glClearColor(0.15, 0.15, 0.15, 0.0)
+        OpenGL.GL.glPointSize(1.0)
+        OpenGL.GL.glEnable(OpenGL.GL.GL_AUTO_NORMAL)
+        OpenGL.GL.glEnable(OpenGL.GL.GL_COLOR_MATERIAL)
+        OpenGL.GL.glEnable(OpenGL.GL.GL_NORMALIZE)
+        OpenGL.GL.glDisable(OpenGL.GL.GL_CULL_FACE)
+        OpenGL.GL.glShadeModel(OpenGL.GL.GL_SMOOTH)
+        OpenGL.GL.OpenGL.GL.glClearColor(0.15, 0.15, 0.15, 0.0)
         set_diffuse_light()
 
     def paintGL(self):
@@ -1132,7 +1132,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         if not self.isReady():
             return
         
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        OpenGL.GL.glClear(OpenGL.GL.GL_COLOR_BUFFER_BIT | OpenGL.GL.GL_DEPTH_BUFFER_BIT)
 
         # update camera
         self.camera.apply()
@@ -1156,36 +1156,36 @@ class GLWidget(QtOpenGL.QGLWidget):
 
             if not scene.drawable():
                 #self.SIGNAL_UNDRAWABLE_SCENE.emit(scene, self.state.current_frame)
-                glColor3d(1, 1, 0)
+                OpenGL.GL.glColor3d(1, 1, 0)
                 self.renderText(0, 0, 0, '[Error drawing {0}]'.format(scene.name))
                 continue
 
             # draw mode override
             mode = GL_MODE_MAP.get(scene.properties.get('mode'),
-                   GL_MODE_MAP.get(self.camera.mode, GL_LINE)
+                   GL_MODE_MAP.get(self.camera.mode, OpenGL.GL.GL_LINE)
                    )
             if mode > 1:
-                glPolygonMode(GL_FRONT_AND_BACK, mode)
+                OpenGL.GL.glPolygonMode(OpenGL.GL.GL_FRONT_AND_BACK, mode)
            
             # apply local transforms
             if scene.has_xform_overrides():
-                glPushMatrix()
-                glTranslatef(*scene.translate)
-                glRotatef(*scene.rotate)
-                glScalef(*scene.scale)
+                OpenGL.GL.glPushMatrix()
+                OpenGL.GL.glTranslatef(*scene.translate)
+                OpenGL.GL.glRotatef(*scene.rotate)
+                OpenGL.GL.glScalef(*scene.scale)
             
             if scene.selected:
-                glColor3d(0.5, 0.5, 0)
+                OpenGL.GL.glColor3d(0.5, 0.5, 0)
             else:
-                glColor3f(*scene.color)
+                OpenGL.GL.glColor3f(*scene.color)
 
             # draw scene bounds
             if self.camera.draw_bounds:
                 scene.draw_bounds(self.state.current_time)
             
             # draw scene geom
-            if mode != Mode.OFF:
-                scene.draw(self.camera.visible, mode == Mode.BOUNDS)
+            if mode != abcview.io.Mode.OFF:
+                scene.draw(self.camera.visible, mode == abcview.io.Mode.BOUNDS)
             
             # draw scene labels
             if self.camera.draw_labels:
@@ -1193,7 +1193,7 @@ class GLWidget(QtOpenGL.QGLWidget):
                 self.renderText(c[0], c[1], c[2], scene.name)
 
             if scene.has_xform_overrides():
-                glPopMatrix()
+                OpenGL.GL.glPopMatrix()
         
         # draw the heads-up-display
         if self.camera.draw_hud:
@@ -1221,7 +1221,7 @@ class GLWidget(QtOpenGL.QGLWidget):
                 if scene.selected:
                     scene.mode = mode
                     found = True
-                    if mode != Mode.OFF:
+                    if mode != abcview.io.Mode.OFF:
                         scene.load()
             if not found:
                 self.handle_set_mode(mode)
@@ -1241,23 +1241,23 @@ class GLWidget(QtOpenGL.QGLWidget):
         
         # 0 - display off
         elif key == QtCore.Qt.Key_0:
-            _set_selected_scene_mode(Mode.OFF)
+            _set_selected_scene_mode(abcview.io.Mode.OFF)
 
         # 1 - smooth
         elif key == QtCore.Qt.Key_1:
-            _set_selected_scene_mode(Mode.FILL)
+            _set_selected_scene_mode(abcview.io.Mode.FILL)
 
         # 2 - lines
         elif key == QtCore.Qt.Key_2:
-            _set_selected_scene_mode(Mode.LINE)
+            _set_selected_scene_mode(abcview.io.Mode.LINE)
 
         # 3 - points
         elif key == QtCore.Qt.Key_3:
-            _set_selected_scene_mode(Mode.POINT)
+            _set_selected_scene_mode(abcview.io.Mode.POINT)
 
         # 4 - bounds
         elif key == QtCore.Qt.Key_4:
-            _set_selected_scene_mode(Mode.BOUNDS)
+            _set_selected_scene_mode(abcview.io.Mode.BOUNDS)
 
         # right arroy - increment frame
         elif key == QtCore.Qt.Key_Right:
@@ -1315,13 +1315,13 @@ class GLWidget(QtOpenGL.QGLWidget):
         """
         mouse double-click event handler
         """
-        if self.camera.mode == Mode.OFF:
+        if self.camera.mode == abcview.io.Mode.OFF:
             return
 
         # get scene selection hits
         hit = None
         for scene in self.state.scenes:
-            if scene.mode == Mode.OFF or not scene.visible:
+            if scene.mode == abcview.io.Mode.OFF or not scene.visible:
                 continue
             x, y = event.pos().x(), event.pos().y()
             camera = self.camera.views[self]
@@ -1348,7 +1348,7 @@ class GLWidget(QtOpenGL.QGLWidget):
            event.modifiers() == QtCore.Qt.NoModifier:
             self.setCursor(QtCore.Qt.ArrowCursor)
 
-            if self.__mode == GL_SELECT:
+            if self.__mode == OpenGL.GL.GL_SELECT:
                 for scene in self.state.scenes:
                     scene.selected = False
                 self.SIGNAL_CLEAR_SELECTION.emit()
@@ -1368,14 +1368,14 @@ class GLWidget(QtOpenGL.QGLWidget):
 
             # splits
             layout_menu = QtGui.QMenu('Layout', self)
-            self.splitHAct = QtGui.QAction(QtGui.QIcon('{0}/split_vert.png'.format(config.ICON_DIR)),
+            self.splitHAct = QtGui.QAction(QtGui.QIcon('{0}/split_vert.png'.format(abcview.config.ICON_DIR)),
                                            'Split Vertical ',
                                            self)
             self.splitHAct.setShortcut('Shift+|')
             self.splitHAct.triggered.connect(self.split_vert)
             layout_menu.addAction(self.splitHAct)
 
-            self.splitVAct = QtGui.QAction(QtGui.QIcon('{0}/split_horz.png'.format(config.ICON_DIR)),
+            self.splitVAct = QtGui.QAction(QtGui.QIcon('{0}/split_horz.png'.format(abcview.config.ICON_DIR)),
                                            'Split Horizontal ',
                                            self)
             self.splitVAct.setShortcut('Shift+_')
@@ -1489,8 +1489,8 @@ class GLWidget(QtOpenGL.QGLWidget):
             self.offAct.setShortcut('0')
             self.offAct.setCheckable(True)
             self.offAct.setActionGroup(shading_group)
-            self.offAct.setData(Mode.OFF)
-            self.offAct.setChecked(self.camera.mode == Mode.OFF)
+            self.offAct.setData(abcview.io.Mode.OFF)
+            self.offAct.setChecked(self.camera.mode == abcview.io.Mode.OFF)
             self.offAct.toggled.connect(self.handle_set_mode)
             self.shading_menu.addAction(self.offAct)
 
@@ -1498,8 +1498,8 @@ class GLWidget(QtOpenGL.QGLWidget):
             self.fillAct.setShortcut('1')
             self.fillAct.setCheckable(True)
             self.fillAct.setActionGroup(shading_group)
-            self.fillAct.setData(Mode.FILL)
-            self.fillAct.setChecked(self.camera.mode == Mode.FILL)
+            self.fillAct.setData(abcview.io.Mode.FILL)
+            self.fillAct.setChecked(self.camera.mode == abcview.io.Mode.FILL)
             self.fillAct.toggled.connect(self.handle_set_mode)
             self.shading_menu.addAction(self.fillAct)
             
@@ -1507,8 +1507,8 @@ class GLWidget(QtOpenGL.QGLWidget):
             self.lineAct.setShortcut('2')
             self.lineAct.setCheckable(True)
             self.lineAct.setActionGroup(shading_group)
-            self.lineAct.setData(Mode.LINE)
-            self.lineAct.setChecked(self.camera.mode == Mode.LINE)
+            self.lineAct.setData(abcview.io.Mode.LINE)
+            self.lineAct.setChecked(self.camera.mode == abcview.io.Mode.LINE)
             self.lineAct.toggled.connect(self.handle_set_mode)
             self.shading_menu.addAction(self.lineAct)
 
@@ -1516,8 +1516,8 @@ class GLWidget(QtOpenGL.QGLWidget):
             self.pointAct.setShortcut('3')
             self.pointAct.setCheckable(True)
             self.pointAct.setActionGroup(shading_group)
-            self.pointAct.setData(Mode.POINT)
-            self.pointAct.setChecked(self.camera.mode == Mode.POINT)
+            self.pointAct.setData(abcview.io.Mode.POINT)
+            self.pointAct.setChecked(self.camera.mode == abcview.io.Mode.POINT)
             self.pointAct.toggled.connect(self.handle_set_mode)
             self.shading_menu.addAction(self.pointAct)
             
@@ -1525,8 +1525,8 @@ class GLWidget(QtOpenGL.QGLWidget):
             self.bboxAct.setShortcut('4')
             self.bboxAct.setCheckable(True)
             self.bboxAct.setActionGroup(shading_group)
-            self.bboxAct.setData(Mode.BOUNDS)
-            self.bboxAct.setChecked(self.camera.mode == Mode.BOUNDS)
+            self.bboxAct.setData(abcview.io.Mode.BOUNDS)
+            self.bboxAct.setChecked(self.camera.mode == abcview.io.Mode.BOUNDS)
             self.bboxAct.toggled.connect(self.handle_set_mode)
             self.shading_menu.addAction(self.bboxAct)
 
