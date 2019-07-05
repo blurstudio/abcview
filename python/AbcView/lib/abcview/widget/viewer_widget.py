@@ -171,7 +171,7 @@ def message(info):
     dialog.setText(info)
     dialog.exec_()
 
-class GLSplitter(QtGui.QSplitter):
+class GLSplitter(QtWidgets.QSplitter):
     def __init__(self, orientation, wipe=False):
         super(GLSplitter, self).__init__(orientation)
         self.wipe = wipe
