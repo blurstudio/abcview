@@ -1349,13 +1349,16 @@ class AbcView(QtWidgets.QMainWindow):
         File->Open menud handler
         """
         filepath = QtWidgets.QFileDialog.getOpenFileName(self,
-                                                     'Open File',
-                                                     os.getcwd(),
-                                                     ('Alembic Files (*.%s *.{0})'.format((abcview.io.Scene.EXT,
-                                                                                           abcview.io.Session.EXT))))
+                                                         'Open File',
+                                                         os.getcwd(),
+                                                         ('Alembic Files (*.{0} *.{1})'.format(abcview.io.Scene.EXT,
+                                                                                               abcview.io.Session.EXT)))
+
+        filepath = str(filepath[0])
+
         if filepath:
             self.clear()
-            self.set_load_files([str(filepath.toAscii())])
+            self.set_load_files([filepath])
             self._load()
 
     @make_dirty
