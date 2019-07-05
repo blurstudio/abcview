@@ -59,7 +59,7 @@ import OpenGL.GL
 import OpenGL.GLU
 
 # flag opengl errors
-import OpenGL.arrays
+import OpenGL.arrays.numpymodule
 OpenGL.arrays.numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
 import imath
