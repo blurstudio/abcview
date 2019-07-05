@@ -91,7 +91,7 @@ class ArrayThread(QtCore.QThread):
 
     def run(self):
         try:
-            if type(self.array) in (str, unicode, int, float, bool):
+            if isinstance(self.array, (str, unicode, int, float, bool)):
                 self.SIGNAL_ARRAY.emit(0, str(self.array))
             else:
                 for index, value in enumerate(self.array[self.first:]):
@@ -157,7 +157,7 @@ class AbcTreeWidgetItem(QtGui.QTreeWidgetItem):
     def scene(self):
         parent = self
         while parent:
-            if type(parent) == SceneTreeWidgetItem:
+            if isinstance(parent, SceneTreeWidgetItem):
                 return parent
             parent = parent.parent()
 
@@ -272,9 +272,9 @@ class EditableTreeWidgetItem(AbcTreeWidgetItem):
         return self.property[1]
 
     def formatted(self):
-        if self.type() in (list, tuple):
+        if isinstance(self, (list, tuple)):
             return ", ".join([str(v) for v in self.value()])
-        elif self.type() in (unicode, str, int, float, bool):
+        elif isinstance(self in (unicode, str, int, float, bool)):
             return str(self.value())
 
     def type(self):
@@ -581,7 +581,7 @@ class AbcTreeWidget(DeselectableTreeWidget):
         """
         self.scrollToItem(item, QtGui.QAbstractItemView.EnsureVisible)
         self.SIGNAL_ITEM_CLICKED.emit(item)
-        if col == self.colnum('') and type(item) == SceneTreeWidgetItem:
+        if col == self.colnum('') and isinstance(item, SceneTreeWidgetItem):
             if item.checkState(self.colnum('')) == QtCore.Qt.Checked:
                 item.load()
             else:
@@ -592,10 +592,10 @@ class AbcTreeWidget(DeselectableTreeWidget):
         Item double-click handler.
         """
         self._item = item
-        if type(item) in (SessionTreeWidgetItem, SceneTreeWidgetItem):
+        if isinstance(item, (SessionTreeWidgetItem, SceneTreeWidgetItem)):
             value = item.object.name
             colnum = self.colnum('name')
-        elif type(item) in (EditableTreeWidgetItem, ):
+        elif isinstance(item, (EditableTreeWidgetItem, )):
             value = item.formatted()
             colnum = self.colnum('value')
         else:
@@ -615,10 +615,10 @@ class AbcTreeWidget(DeselectableTreeWidget):
         if not self._item or not value:
             return
         value = str(value.toAscii())
-        if type(self._item) in (SessionTreeWidgetItem, SceneTreeWidgetItem):
+        if isinstance(self._item, (SessionTreeWidgetItem, SceneTreeWidgetItem)):
             self._item.object.name = value
             self._item.setText('name', value)
-        elif type(self._item) in (EditableTreeWidgetItem, ):
+        elif isinstance(self._item, (EditableTreeWidgetItem, )):
             value = eval(value)
             setattr(self._item.scene.object, self._item.object[0], value)
             self._item.property = (self._item.object[0], value)
@@ -636,9 +636,9 @@ class AbcTreeWidget(DeselectableTreeWidget):
 
         new_value = str(self._item.editor.text().toAscii())
 
-        if type(self._item) in (SessionTreeWidgetItem, SceneTreeWidgetItem):
+        if isinstance(self._item, (SessionTreeWidgetItem, SceneTreeWidgetItem)):
             column = 'name'
-        elif type(self._item) in (EditableTreeWidgetItem, ):
+        elif isinstance(self._item, (EditableTreeWidgetItem, )):
             column = 'value'
 
         if new_value != self._item.old_value:
@@ -650,7 +650,7 @@ class AbcTreeWidget(DeselectableTreeWidget):
 
             # editable property tree widget item
             elif column == 'value':
-                if self._item.type() in (list, tuple):
+                if isinstance(self._item, (list, tuple)):
                     new_value = s2f(new_value)
                     old_value = s2f(self._item.old_value)
                     diff_value = abcview.utils.diff_two_lists(old_value, new_value)
@@ -680,9 +680,9 @@ class AbcTreeWidget(DeselectableTreeWidget):
         if not selected:
             return []
         selected = selected[0]
-        if type(selected) == SessionTreeWidgetItem:
+        if isinstance(selected, SessionTreeWidgetItem):
             return selected.object
-        elif type(selected) == SceneTreeWidgetItem:
+        elif isinstance(selected, SceneTreeWidgetItem):
             return selected.object.archive.getTop()
         else:
             return selected.object
@@ -698,7 +698,7 @@ class AbcTreeWidget(DeselectableTreeWidget):
         for index in range(self.topLevelItemCount()):
             item = self.topLevelItem(index)
             found = False
-            while type(item) != ObjectTreeWidgetItem:
+            while isinstance(item, ObjectTreeWidgetItem):
                 item.setExpanded(True)
                 item = item.child(0)
             for object in abcview.utils.find_objects(item.object, name):
@@ -778,7 +778,7 @@ class ObjectTreeWidget(AbcTreeWidget):
             self.remove_item(self.selectedItems()[0])
 
     def handle_item_expanded(self, item):
-        if type(item) == SessionTreeWidgetItem:
+        if isinstance(item, SessionTreeWidgetItem):
             item.setIcon(0, QtGui.QIcon('{0}/session-open.png'.format(abcview.config.ICON_DIR)))
         if not item.seen:
             for child in item.children():
@@ -786,7 +786,7 @@ class ObjectTreeWidget(AbcTreeWidget):
             item.seen = True
 
     def handle_item_collapsed(self, item):
-        if type(item) == SessionTreeWidgetItem:
+        if isinstance(item, SessionTreeWidgetItem):
             item.setIcon(0, QtGui.QIcon('{0}/session.png'.format(abcview.config.ICON_DIR)))
 
     def handle_set_color(self, ok):
@@ -798,7 +798,7 @@ class ObjectTreeWidget(AbcTreeWidget):
         item = self.selectedItems()[0]
         dialog = QtGui.QColorDialog(QtGui.QColor(*item.object.color), self)
         rgba, ok = dialog.getRgba()
-        if ok and type(item) == SceneTreeWidgetItem:
+        if ok and isinstance(item, SceneTreeWidgetItem):
             item.set_color(QtGui.QColor(rgba))
 
             # add a session override
@@ -850,7 +850,7 @@ class ObjectTreeWidget(AbcTreeWidget):
             self.add_action.triggered.connect(self.add_item)
             menu.addAction(self.add_action)
 
-        elif type(items[0]) == SceneTreeWidgetItem:
+        elif isinstance(items[0], SceneTreeWidgetItem):
             item = items[0]
 
             # color picker
@@ -941,7 +941,7 @@ class ObjectTreeWidget(AbcTreeWidget):
 
         else:
             item = items[0]
-            if type(item) == CameraTreeWidgetItem:
+            if isinstance(item, CameraTreeWidgetItem):
                 self.view_action = QtGui.QAction('Look through selected', self)
                 self.view_action.triggered.connect(self.view_camera)
                 menu.addAction(self.view_action)
@@ -971,14 +971,14 @@ class PropertyTreeWidget(AbcTreeWidget):
 
     def show_properties(self, item):
         self.clear()
-        if type(item) in (SessionTreeWidgetItem, SceneTreeWidgetItem):
+        if isinstance(item, (SessionTreeWidgetItem, SceneTreeWidgetItem)):
 
             # special properties, like translate, rotate, scale...
             for editable in self.EDITABLE:
                 property = (editable, getattr(item.object, editable))
                 self.addTopLevelItem(EditableTreeWidgetItem(self, item, property))
 
-            if type(item) == SceneTreeWidgetItem:
+            if isinstance(item, SceneTreeWidgetItem):
                 info = alembic.Abc.GetArchiveInfo(item.object.archive)
                 for key, value in info.items():
                     self.addTopLevelItem(EditableTreeWidgetItem(self, item, (key, value)))
