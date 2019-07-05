@@ -686,7 +686,7 @@ class AbcView(QtWidgets.QMainWindow):
         Loads AbcView layout settings from a PyQt settings file.
         """
         geom = self.settings.value('geometry')
-        if geom.isNull() or not geom.isValid():
+        if not geom or geom.isNull() or not geom.isValid():
             self.reset_settings()
             return
 
