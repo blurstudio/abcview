@@ -1559,17 +1559,16 @@ def version_check():
         return 0
 
 def create_app(files = None,
-           first_frame = None,
-           last_frame = None,
-           current_frame = None,
-           fps = None,
-           script = None,
-           bounds = False,
-           mode = None,
-           review = False,
-           reset = False,
-           verbose = False
-          ):
+               first_frame = None,
+               last_frame = None,
+               current_frame = None,
+               fps = None,
+               script = None,
+               bounds = False,
+               mode = None,
+               review = False,
+               reset = False,
+               verbose = False):
     """
     Creates a new instance of an :py:class:`.AbcView` application.
 
