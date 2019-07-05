@@ -47,7 +47,7 @@ except:
     from PySide2 import QtGui
     from PySide2 import QtCore
 
-from abcview import log, style, config
+import abcview
 
 class AbcConsoleWidget(QtWidgets.QPlainTextEdit):
     """
@@ -206,17 +206,17 @@ To get the selected item from the Objects Tree,
             self.newPrompt()
             self.setCommand(cmd)
         except ImportError, error:
-            log.error(error)
+            abcview.log.error(error)
     
     def runScript(self, script_path):
         if not os.path.isfile(script_path):
             return
         try:
-            log.info('executing: {0}'.format(script_path))
+            abcview.log.info('executing: {0}'.format(script_path))
             execfile(script_path, self.namespace, self.namespace)
         except Exception, e:
             err = traceback.format_exc()
-            log.error('{0}: {1}'.format(os.path.basename(script_path), err))
+            abcview.log.error('{0}: {1}'.format(os.path.basename(script_path), err))
 
     def runCommand(self):
         command = self.getCommand()
