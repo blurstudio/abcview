@@ -134,7 +134,7 @@ class Slider(QtWidgets.QSlider):
         rect_s.setY(2)
         section_rect = rect_s.getRect()
 
-        opt = QtGui.QStyleOptionSlider()
+        opt = QtWidgets.QStyleOptionSlider()
         self.initStyleOption(opt)
         style = self.style()
         handle = style.subControlRect(style.CC_Slider, opt, 
@@ -175,7 +175,7 @@ class TimeSlider(QtWidgets.QGroupBox):
         super(TimeSlider, self).__init__(parent)
         self._parent = parent
         self.setObjectName('time_slider')
-        self.setLayout(QtGui.QHBoxLayout())
+        self.setLayout(QtWidgets.QHBoxLayout())
         self.setFixedHeight(20)
         self.layout().setSpacing(0)
         self.layout().setMargin(0)
@@ -186,13 +186,13 @@ class TimeSlider(QtWidgets.QGroupBox):
         self.slider.valueChanged.connect(self.handle_frame_change)
 
         # play button
-        self.play_button = QtGui.QPushButton(self)
+        self.play_button = QtWidgets.QPushButton(self)
         self.play_button.setObjectName('play_button')
         self.play_button.setFixedSize(50, 20)
         self.play_button.clicked.connect(self.handle_play)
         
         # stop button
-        self.stop_button = QtGui.QPushButton(self)
+        self.stop_button = QtWidgets.QPushButton(self)
         self.stop_button.setObjectName('stop_button')
         self.stop_button.setFixedSize(50, 20)
         self.stop_button.clicked.connect(self.handle_stop)

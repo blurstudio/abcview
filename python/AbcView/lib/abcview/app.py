@@ -101,7 +101,7 @@ def wait(func):
     return with_wrapped_func
 
 def message(info):
-    dialog = QtGui.QMessageBox()
+    dialog = QtWidgets.QMessageBox()
     dialog.setStyleSheet(abcview.style.DIALOG)
     dialog.setText(info)
     dialog.exec_()
@@ -169,11 +169,11 @@ class QScriptAction(QtWidgets.QGroupBox):
         """
         super(QScriptAction, self).__init__()
         self.action = action
-        self.layout = QtGui.QHBoxLayout()
+        self.layout = QtWidgets.QHBoxLayout()
         self.layout.setMargin(0)
         self.layout.setSpacing(0)
-        self.label = QtGui.QPushButton(os.path.basename(name))
-        self.button = QtGui.QPushButton()
+        self.label = QtWidgets.QPushButton(os.path.basename(name))
+        self.button = QtWidgets.QPushButton()
         self.button.setFixedSize(12, 12)
         self.button.setObjectName('edit_button')
         self.button.setIcon(QtGui.QIcon('{0}/edit.png'.format(abcview.config.ICON_DIR)))
@@ -198,16 +198,16 @@ class QScriptAction(QtWidgets.QGroupBox):
         abcview.log.debug(cmd)
         os.system(cmd)
 
-class AbcMenuBar(QtGui.QMenuBar):
+class AbcMenuBar(QtWidgets.QMenuBar):
     def __init__(self, parent, main):
         super(AbcMenuBar, self).__init__(parent)
         self.main = main
         self.setFocusPolicy(QtCore.Qt.ClickFocus)
 
-        self.file_menu = QtGui.QMenu('File')
-        self.widget_menu = QtGui.QMenu('Widgets')
-        self.script_menu = QtGui.QMenu('Scripts')
-        self.help_menu = QtGui.QMenu('Help')
+        self.file_menu = QtWidgets.QMenu('File')
+        self.widget_menu = QtWidgets.QMenu('Widgets')
+        self.script_menu = QtWidgets.QMenu('Scripts')
+        self.help_menu = QtWidgets.QMenu('Help')
 
         self.file_menu.setStyleSheet(abcview.style.MAIN)
         self.widget_menu.setStyleSheet(abcview.style.MAIN)
@@ -237,35 +237,35 @@ class AbcMenuBar(QtGui.QMenuBar):
         self.addMenu(self.file_menu)
 
     def setup_wid_menu(self):
-        self.console_action = QtGui.QAction('Console', self)
+        self.console_action = QtWidgets.QAction('Console', self)
         self.console_action.setShortcut('Ctrl+Shift+C')
         self.console_action.setCheckable(True)
         self.console_action.setChecked(True)
         self.console_action.toggled.connect(self.handle_show_console)
         self.widget_menu.addAction(self.console_action)
 
-        self.object_action = QtGui.QAction('Objects', self)
+        self.object_action = QtWidgets.QAction('Objects', self)
         self.object_action.setShortcut('Ctrl+Shift+O')
         self.object_action.setCheckable(True)
         self.object_action.setChecked(True)
         self.object_action.toggled.connect(self.handle_show_objects)
         self.widget_menu.addAction(self.object_action)
 
-        self.props_action = QtGui.QAction('Properties', self)
+        self.props_action = QtWidgets.QAction('Properties', self)
         self.props_action.setShortcut('Ctrl+Shift+P')
         self.props_action.setCheckable(True)
         self.props_action.setChecked(True)
         self.props_action.toggled.connect(self.handle_show_props)
         self.widget_menu.addAction(self.props_action)
 
-        self.time_slider_action = QtGui.QAction('Timeline', self)
+        self.time_slider_action = QtWidgets.QAction('Timeline', self)
         self.time_slider_action.setShortcut('Ctrl+Shift+T')
         self.time_slider_action.setCheckable(True)
         self.time_slider_action.setChecked(True)
         self.time_slider_action.toggled.connect(self.handle_show_timeline)
         self.widget_menu.addAction(self.time_slider_action)
 
-        self.viewer_action = QtGui.QAction('Viewer', self)
+        self.viewer_action = QtWidgets.QAction('Viewer', self)
         self.viewer_action.setShortcut('Ctrl+Shift+V')
         self.viewer_action.setCheckable(True)
         self.viewer_action.setChecked(True)
@@ -358,7 +358,7 @@ class AbcMenuBar(QtGui.QMenuBar):
                 version = meta.get('version')
                 author = meta.get('author')
                 filepath = meta.get('filepath')
-                script_act = QtGui.QWidgetAction(self.script_menu)
+                script_act = QtWidgets.QWidgetAction(self.script_menu)
                 script_act.setDefaultWidget(QScriptAction(name, filepath, script_act, doc, version, author))
                 script_act.setData(filepath)
                 script_act.triggered.connect(self.handle_run_script)
@@ -407,15 +407,15 @@ class FindLineEdit(QtWidgets.QLineEdit):
     def __init__(self, parent):
         super(FindLineEdit, self).__init__(parent)
         self._parent = parent
-        self.setSizePolicy(QtGui.QSizePolicy.Expanding,
-                                        QtGui.QSizePolicy.Maximum)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                        QtWidgets.QSizePolicy.Maximum)
         self.setFocusPolicy(QtCore.Qt.ClickFocus)
 
     def leaveEvent(self, event):
         self._parent.setFocus()
         super(FindLineEdit, self).leaveEvent(event)
 
-class Splash(QtGui.QSplashScreen):
+class Splash(QtWidgets.QSplashScreen):
     """
     AbcView splash screen.
     """
@@ -426,19 +426,19 @@ class Splash(QtGui.QSplashScreen):
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
         # logo
-        self.logo = QtGui.QLabel()
+        self.logo = QtWidgets.QLabel()
         self.logo.setPixmap(QtGui.QPixmap('{0}/logo.png'.format(abcview.config.ICON_DIR)))
 
         self.resize(600, 350)
         self.move(0, 0)
 
         # layout
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         layout.setSpacing(0)
         layout.setMargin(0)
         layout.addWidget(self.logo)
         self.text = QtWidgets.QLineEdit()
-        self.progress = QtGui.QProgressBar()
+        self.progress = QtWidgets.QProgressBar()
         self.progress.setMaximum(100)
         self.progress.setMinimum(0)
         self.progress.setValue(0)
@@ -464,7 +464,7 @@ class Splash(QtGui.QSplashScreen):
         self.text.setText(message)
 
 ## MAIN -----------------------------------------------------------------------
-class AbcView(QtGui.QMainWindow):
+class AbcView(QtWidgets.QMainWindow):
     """
     Main application. The best way to instantiate this class is to use
     the :py:func:`.create_app` function.
@@ -478,11 +478,11 @@ class AbcView(QtGui.QMainWindow):
 
         :param filepath: file to load (.io or .abc)
         """
-        QtGui.QMainWindow.__init__(self)
+        QtWidgets.QMainWindow.__init__(self)
         self.setWindowState(QtCore.Qt.WindowActive)
         self.setWindowFlags(QtCore.Qt.Window)
         self.setWindowTitle(self.TITLE)
-        self.setStyle(QtGui.QStyleFactory.create('cleanlooks'))
+        self.setStyle(QtWidgets.QStyleFactory.create('cleanlooks'))
         self.setStyleSheet(abcview.style.MAIN)
         self.setMinimumSize(200, 200)
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
@@ -503,7 +503,7 @@ class AbcView(QtGui.QMainWindow):
         self.setMenuBar(self.main_menu)
 
         self.objects_group = QtWidgets.QGroupBox(self)
-        self.objects_group.setLayout(QtGui.QVBoxLayout())
+        self.objects_group.setLayout(QtWidgets.QVBoxLayout())
 
         #TODO: refactor these signals
         self.objects_tree = abcview.widget.tree_widget.ObjectTreeWidget(self, main=self)
@@ -540,7 +540,7 @@ class AbcView(QtGui.QMainWindow):
         # viewer
         self.viewer = abcview.widget.viewer_widget.GLWidget(self)
         self.viewer_group = QtWidgets.QGroupBox(self)
-        self.viewer_group.setLayout(QtGui.QVBoxLayout())
+        self.viewer_group.setLayout(QtWidgets.QVBoxLayout())
         self.viewer_group.layout().setSpacing(0)
         self.viewer_group.layout().setMargin(0)
         self.viewer_group.layout().addWidget(self.viewer)
@@ -566,7 +566,7 @@ class AbcView(QtGui.QMainWindow):
         self.time_slider.SIGNAL_PLAY_STOP.connect(self.handle_stop)
         self.time_slider.SIGNAL_FIRST_FRAME_CHANGED.connect(self.handle_first_frame_change)
         self.time_slider.SIGNAL_LAST_FRAME_CHANGED.connect(self.handle_last_frame_change)
-        self.time_slider_toolbar = QtGui.QToolBar(self)
+        self.time_slider_toolbar = QtWidgets.QToolBar(self)
         self.time_slider_toolbar.setObjectName('time_slider_toolbar')
         self.time_slider_toolbar.addWidget(self.time_slider)
         self.time_slider_toolbar.setMovable(False)
@@ -600,7 +600,7 @@ class AbcView(QtGui.QMainWindow):
         self.find_line_edit.returnPressed.connect(self.handle_find)
 
         # wait for main event loop to start
-        QtGui.QApplication.instance().SIGNAL_STARTING_UP.connect(self._start)
+        QtWidgets.QApplication.instance().SIGNAL_STARTING_UP.connect(self._start)
 
         # create the splash screen
         self.splash = Splash(self)
@@ -630,12 +630,12 @@ class AbcView(QtGui.QMainWindow):
 
         :param message: text to display
         """
-        msg = QtGui.QMessageBox()
+        msg = QtWidgets.QMessageBox()
         msg.setStyleSheet(abcview.style.DIALOG)
         msg.setText(message)
         msg.setInformativeText('Do you want to save your changes?')
-        msg.setStandardButtons(QtGui.QMessageBox.Save | QtGui.QMessageBox.Discard | QtGui.QMessageBox.Cancel)
-        msg.setDefaultButton(QtGui.QMessageBox.Save)
+        msg.setStandardButtons(QtWidgets.QMessageBox.Save | QtWidgets.QMessageBox.Discard | QtWidgets.QMessageBox.Cancel)
+        msg.setDefaultButton(QtWidgets.QMessageBox.Save)
         return msg.exec_()
 
     ## settings
@@ -1008,8 +1008,8 @@ class AbcView(QtGui.QMainWindow):
         """
         Waits for the window to be drawn before proceeding.
         """
-        app = QtGui.QApplication.instance()
-        while QtGui.QApplication.instance().startingUp():
+        app = QtWidgets.QApplication.instance()
+        while QtWidgets.QApplication.instance().startingUp():
             pass
         while not self.isVisible():
             pass
@@ -1241,7 +1241,7 @@ class AbcView(QtGui.QMainWindow):
         self.objects_tree.clearSelection()
         if scene:
             scene.tree.treeWidget().scrollToItem(scene.tree,
-                             QtGui.QAbstractItemView.PositionAtCenter)
+                             QtWidgets.QAbstractItemView.PositionAtCenter)
             scene.tree.treeWidget().setItemSelected(scene.tree, True)
             self.handle_object_clicked(scene.tree)
 
@@ -1348,7 +1348,7 @@ class AbcView(QtGui.QMainWindow):
         """
         File->Open menud handler
         """
-        filepath = QtGui.QFileDialog.getOpenFileName(self,
+        filepath = QtWidgets.QFileDialog.getOpenFileName(self,
                                                      'Open File',
                                                      os.getcwd(),
                                                      ('Alembic Files (*.%s *.{0})'.format((abcview.io.Scene.EXT,
@@ -1363,7 +1363,7 @@ class AbcView(QtGui.QMainWindow):
         """
         File->Import menud handler
         """
-        filepath = QtGui.QFileDialog.getOpenFileName(self, 'Open File',
+        filepath = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File',
                     os.getcwd(), ('Alembic Files (*.{0} *.{1})'.format(abcview.io.Scene.EXT,
                                                                        abcview.io.Session.EXT)))
         if filepath:
@@ -1458,7 +1458,7 @@ class AbcView(QtGui.QMainWindow):
             self.save_session()
 
     def handle_save_as(self):
-        filepath = QtGui.QFileDialog.getSaveFileName(self, 'Save File',
+        filepath = QtWidgets.QFileDialog.getSaveFileName(self, 'Save File',
                     os.getcwd(), ('Alembic Files (*.{0})'.format(abcview.io.Session.EXT)))
         if filepath:
             self.save_session(str(filepath.toAscii()))
@@ -1500,14 +1500,14 @@ class AbcView(QtGui.QMainWindow):
     def closeEvent(self, event):
         if self.session and self.session.is_dirty():
             resp = self.confirm_close('This session has changed.')
-            if resp == QtGui.QMessageBox.Cancel:
+            if resp == QtWidgets.QMessageBox.Cancel:
                 event.ignore()
                 return
-            elif resp == QtGui.QMessageBox.Save:
+            elif resp == QtWidgets.QMessageBox.Save:
                 self.handle_save()
         super(AbcView, self).closeEvent(event)
 
-class App(QtGui.QApplication):
+class App(QtWidgets.QApplication):
     """
     QApplication subclass that emits a 'startup' signal after
     the event loop has started. This may trigger deferred

@@ -141,7 +141,7 @@ def create_viewer_app(filepath=None):
     # create the viewer widget
     viewer = GLWidget()
     viewer_group = QtWidgets.QGroupBox()
-    viewer_group.setLayout(QtGui.QVBoxLayout())
+    viewer_group.setLayout(QtWidgets.QVBoxLayout())
     viewer_group.layout().setSpacing(0)
     viewer_group.layout().setMargin(0)
     viewer_group.layout().addWidget(viewer)
@@ -166,7 +166,7 @@ def create_viewer_app(filepath=None):
     return app.exec_()
 
 def message(info):
-    dialog = QtGui.QMessageBox()
+    dialog = QtWidgets.QMessageBox()
     dialog.setStyleSheet(abcview.style.DIALOG)
     dialog.setText(info)
     dialog.exec_()
@@ -709,14 +709,14 @@ class GLWidget(QtOpenGL.QGLWidget):
 
         # left/top viewer group
         group1 = QtWidgets.QGroupBox()
-        group1.setLayout(QtGui.QVBoxLayout())
+        group1.setLayout(QtWidgets.QVBoxLayout())
         group1.layout().setSpacing(0)
         group1.layout().setMargin(0)
         group1.layout().addWidget(item.widget())
 
         # right/bottom viewer group
         group2 = QtWidgets.QGroupBox()
-        group2.setLayout(QtGui.QVBoxLayout())
+        group2.setLayout(QtWidgets.QVBoxLayout())
         group2.layout().setSpacing(0)
         group2.layout().setMargin(0)
 
@@ -973,7 +973,7 @@ class GLWidget(QtOpenGL.QGLWidget):
         """
         action_name = str(action.text().toAscii())
         if action_name == 'New':
-            text, ok = QtGui.QInputDialog.getText(self,
+            text, ok = QtWidgets.QInputDialog.getText(self,
                                                   'New Camera',
                                                   'Camera Name:',
                                                   QtWidgets.QLineEdit.Normal)
@@ -1361,25 +1361,25 @@ class GLWidget(QtOpenGL.QGLWidget):
            event.modifiers() == QtCore.Qt.NoModifier:
             self.setCursor(QtCore.Qt.ArrowCursor)
             
-            menu = QtGui.QMenu(self)
+            menu = QtWidgets.QMenu(self)
 
             # splits
-            layout_menu = QtGui.QMenu('Layout', self)
-            self.splitHAct = QtGui.QAction(QtGui.QIcon('{0}/split_vert.png'.format(abcview.config.ICON_DIR)),
+            layout_menu = QtWidgets.QMenu('Layout', self)
+            self.splitHAct = QtWidgets.QAction(QtGui.QIcon('{0}/split_vert.png'.format(abcview.config.ICON_DIR)),
                                            'Split Vertical ',
                                            self)
             self.splitHAct.setShortcut('Shift+|')
             self.splitHAct.triggered.connect(self.split_vert)
             layout_menu.addAction(self.splitHAct)
 
-            self.splitVAct = QtGui.QAction(QtGui.QIcon('{0}/split_horz.png'.format(abcview.config.ICON_DIR)),
+            self.splitVAct = QtWidgets.QAction(QtGui.QIcon('{0}/split_horz.png'.format(abcview.config.ICON_DIR)),
                                            'Split Horizontal ',
                                            self)
             self.splitVAct.setShortcut('Shift+_')
             self.splitVAct.triggered.connect(self.split_horz)
             layout_menu.addAction(self.splitVAct)
             
-            self.closeAct = QtGui.QAction('Close ', self)
+            self.closeAct = QtWidgets.QAction('Close ', self)
             self.closeAct.setShortcut('Shift+-')
             self.closeAct.triggered.connect(self.unsplit)
             layout_menu.addAction(self.closeAct)
@@ -1387,14 +1387,14 @@ class GLWidget(QtOpenGL.QGLWidget):
             menu.addMenu(layout_menu)
 
             # cameras
-            camera_menu = QtGui.QMenu('Cameras', self)
-            camera_group = QtGui.QActionGroup(camera_menu)
-            camera_group_unsaved = QtGui.QActionGroup(camera_menu)
+            camera_menu = QtWidgets.QMenu('Cameras', self)
+            camera_group = QtWidgets.QActionGroup(camera_menu)
+            camera_group_unsaved = QtWidgets.QActionGroup(camera_menu)
             camera_group.setExclusive(False)
             camera_group_unsaved.setExclusive(True)
 
             for camera in self.state.cameras:
-                camera_action = QtGui.QAction(camera.name, self)
+                camera_action = QtWidgets.QAction(camera.name, self)
                 camera_action.setCheckable(True)
                 if camera.name == self.camera.name:
                     camera_action.setChecked(True)
@@ -1412,10 +1412,10 @@ class GLWidget(QtOpenGL.QGLWidget):
 
             menu.addMenu(camera_menu)
           
-            options_menu = QtGui.QMenu('Options', self)
+            options_menu = QtWidgets.QMenu('Options', self)
 
             # bounds toggle menu item
-            #self.aframeAct = QtGui.QAction("Autoframe", self)
+            #self.aframeAct = QtWidgets.QAction("Autoframe", self)
             #self.aframeAct.setCheckable(True)
             #self.aframeAct.setChecked(self.camera.auto_frame)
             #self.connect(self.aframeAct, QtCore.SIGNAL("toggled (bool)"), 
@@ -1423,7 +1423,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             #options_menu.addAction(self.aframeAct)
 
             # fixed aspect ratio toggle menu item
-            self.fixedAct = QtGui.QAction('Fixed Aspect Ratio ', self)
+            self.fixedAct = QtWidgets.QAction('Fixed Aspect Ratio ', self)
             self.fixedAct.setShortcut('Shift+A')
             self.fixedAct.setCheckable(True)
             self.fixedAct.setChecked(self.camera.fixed)
@@ -1431,7 +1431,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             options_menu.addAction(self.fixedAct)
 
             # heads-up-display menu item
-            self.hudAct = QtGui.QAction('Heads-Up-Display ', self)
+            self.hudAct = QtWidgets.QAction('Heads-Up-Display ', self)
             self.hudAct.setShortcut('Shift+H')
             self.hudAct.setCheckable(True)
             self.hudAct.setChecked(self.camera.draw_hud)
@@ -1439,7 +1439,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             options_menu.addAction(self.hudAct)
 
             # labels toggle menu item
-            self.labelsAct = QtGui.QAction('Labels ', self)
+            self.labelsAct = QtWidgets.QAction('Labels ', self)
             self.labelsAct.setShortcut('Shift+L')
             self.labelsAct.setCheckable(True)
             self.labelsAct.setChecked(self.camera.draw_labels)
@@ -1447,7 +1447,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             options_menu.addAction(self.labelsAct)
 
             # normals toggle menu item
-            self.normalsAct = QtGui.QAction('Normals ', self)
+            self.normalsAct = QtWidgets.QAction('Normals ', self)
             self.normalsAct.setShortcut('Shift+N')
             self.normalsAct.setCheckable(True)
             self.normalsAct.setChecked(self.camera.draw_normals)
@@ -1455,7 +1455,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             options_menu.addAction(self.normalsAct)
 
             # bounds toggle menu item
-            self.boundsAct = QtGui.QAction('Scene Bounds ', self)
+            self.boundsAct = QtWidgets.QAction('Scene Bounds ', self)
             self.boundsAct.setShortcut('Shift+B')
             self.boundsAct.setCheckable(True)
             self.boundsAct.setChecked(self.camera.draw_bounds)
@@ -1463,7 +1463,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             options_menu.addAction(self.boundsAct)
 
             # grid toggle menu item
-            self.gridAct = QtGui.QAction('Show Grid ', self)
+            self.gridAct = QtWidgets.QAction('Show Grid ', self)
             self.gridAct.setShortcut('Shift+G')
             self.gridAct.setCheckable(True)
             self.gridAct.setChecked(self.camera.draw_grid)
@@ -1471,7 +1471,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             options_menu.addAction(self.gridAct)
 
             # visibility toggle menu item
-            self.visibleAct = QtGui.QAction('Visible Only ', self)
+            self.visibleAct = QtWidgets.QAction('Visible Only ', self)
             self.visibleAct.setShortcut('Shift+V')
             self.visibleAct.setCheckable(True)
             self.visibleAct.setChecked(self.camera.visible)
@@ -1479,10 +1479,10 @@ class GLWidget(QtOpenGL.QGLWidget):
             options_menu.addAction(self.visibleAct)
 
             # shading toggle menu item
-            self.shading_menu = QtGui.QMenu('Shading', self)
-            shading_group = QtGui.QActionGroup(self.shading_menu)
+            self.shading_menu = QtWidgets.QMenu('Shading', self)
+            shading_group = QtWidgets.QActionGroup(self.shading_menu)
 
-            self.offAct = QtGui.QAction('Off', self)
+            self.offAct = QtWidgets.QAction('Off', self)
             self.offAct.setShortcut('0')
             self.offAct.setCheckable(True)
             self.offAct.setActionGroup(shading_group)
@@ -1491,7 +1491,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             self.offAct.toggled.connect(self.handle_set_mode)
             self.shading_menu.addAction(self.offAct)
 
-            self.fillAct = QtGui.QAction('Fill', self)
+            self.fillAct = QtWidgets.QAction('Fill', self)
             self.fillAct.setShortcut('1')
             self.fillAct.setCheckable(True)
             self.fillAct.setActionGroup(shading_group)
@@ -1500,7 +1500,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             self.fillAct.toggled.connect(self.handle_set_mode)
             self.shading_menu.addAction(self.fillAct)
             
-            self.lineAct = QtGui.QAction('Line', self)
+            self.lineAct = QtWidgets.QAction('Line', self)
             self.lineAct.setShortcut('2')
             self.lineAct.setCheckable(True)
             self.lineAct.setActionGroup(shading_group)
@@ -1509,7 +1509,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             self.lineAct.toggled.connect(self.handle_set_mode)
             self.shading_menu.addAction(self.lineAct)
 
-            self.pointAct = QtGui.QAction('Point ', self)
+            self.pointAct = QtWidgets.QAction('Point ', self)
             self.pointAct.setShortcut('3')
             self.pointAct.setCheckable(True)
             self.pointAct.setActionGroup(shading_group)
@@ -1518,7 +1518,7 @@ class GLWidget(QtOpenGL.QGLWidget):
             self.pointAct.toggled.connect(self.handle_set_mode)
             self.shading_menu.addAction(self.pointAct)
             
-            self.bboxAct = QtGui.QAction('Bounds ', self)
+            self.bboxAct = QtWidgets.QAction('Bounds ', self)
             self.bboxAct.setShortcut('4')
             self.bboxAct.setCheckable(True)
             self.bboxAct.setActionGroup(shading_group)
