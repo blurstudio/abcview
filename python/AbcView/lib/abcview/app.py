@@ -1184,7 +1184,7 @@ class AbcView(QtWidgets.QMainWindow):
             index = ts.getNearIndex(t, len(p.samples))
             item = self.samples_tree.topLevelItem(index)
             self.samples_tree.clearSelection()
-            self.samples_tree.setItemSelected(item, True)
+            item.setSelected(True)
             self.samples_tree.scrollToItem(item)
 
     def handle_bad_scene(self, scene, frame):
@@ -1242,7 +1242,7 @@ class AbcView(QtWidgets.QMainWindow):
         if scene:
             scene.tree.treeWidget().scrollToItem(scene.tree,
                              QtWidgets.QAbstractItemView.PositionAtCenter)
-            scene.tree.treeWidget().setItemSelected(scene.tree, True)
+            scene.tree.setSelected(True)
             self.handle_object_clicked(scene.tree)
 
     @wait

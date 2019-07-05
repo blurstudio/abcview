@@ -718,7 +718,7 @@ class AbcTreeWidget(DeselectableTreeWidget):
         if found:
             self.scrollToItem(item, QtWidgets.QAbstractItemView.PositionAtCenter)
             item.setExpanded(False)
-            self.setItemSelected(item, True)
+            item.setSelected(True)
 
 class ObjectTreeWidget(AbcTreeWidget):
 
