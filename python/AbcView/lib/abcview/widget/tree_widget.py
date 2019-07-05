@@ -48,14 +48,13 @@ except:
     from PySide2.QtCore import Signal as Signal
 
 import alembic
-from abcview.io import Scene, Session, Mode
-from abcview.utils import find_objects, get_schema_info
-from abcview.utils import sum_two_lists, diff_two_lists
-from abcview import log, style, config
+import abcview.io
+import abcview.utils
+import abcview
 
 def message(info):
     dialog = QtGui.QMessageBox()
-    dialog.setStyleSheet(style.DIALOG)
+    dialog.setStyleSheet(abcview.style.DIALOG)
     dialog.setText(info)
     dialog.exec_()
 
@@ -170,7 +169,7 @@ class AbcTreeWidgetItem(QtGui.QTreeWidgetItem):
         Set this tree widget item as being "bad" for some reason, e.g. an
         undrawable scene, with a visual indicator.
         """
-        log.debug('[{0}.set_bad] {1}'.format(self, bad))
+        abcview.log.debug('[{0}.set_bad] {1}'.format(self, bad))
 
     def setText(self, name, value):
         """
@@ -198,7 +197,7 @@ class ObjectTreeWidgetItem(AbcTreeWidgetItem):
         """
         super(ObjectTreeWidgetItem, self).__init__(parent, object)
         self.setChildIndicatorPolicy(QtGui.QTreeWidgetItem.DontShowIndicator)
-        self.setIcon(0, QtGui.QIcon('{0}/object.png'.format(config.ICON_DIR)))
+        self.setIcon(0, QtGui.QIcon('{0}/object.png'.format(abcview.config.ICON_DIR)))
 
         self.object = iObject
         if object:
@@ -240,7 +239,7 @@ class CameraTreeWidgetItem(ObjectTreeWidgetItem):
         :param object: ICamera class object
         """
         super(CameraTreeWidgetItem, self).__init__(parent, object)
-        self.setIcon(0, QtGui.QIcon('{0}/camera.png'.format(config.ICON_DIR)))
+        self.setIcon(0, QtGui.QIcon('{0}/camera.png'.format(abcview.config.ICON_DIR)))
         self.__camera = None
 
     def camera(self):
@@ -389,14 +388,14 @@ class SessionTreeWidgetItem(AbcTreeWidgetItem):
 
     def __init__(self, parent, object):
         """
-        :param object: Session
+        :param object: abcview.io.Session
         """
         super(SessionTreeWidgetItem, self).__init__(parent, object)
         self.setChildIndicatorPolicy(QtGui.QTreeWidgetItem.ShowIndicator)
         self.setExpanded(True)
         self.setText('name', self.object.name)
         self.setToolTip('name', self.object.filepath)
-        self.setIcon(0, QtGui.QIcon('{0}/session-open.png'.format(config.ICON_DIR)))
+        self.setIcon(0, QtGui.QIcon('{0}/session-open.png'.format(abcview.config.ICON_DIR)))
         self.setCheckState(self.treeWidget().colnum(''), QtCore.Qt.Checked)
 
     def load(self):
@@ -423,9 +422,9 @@ class SessionTreeWidgetItem(AbcTreeWidgetItem):
                 yield self.child(index)
         else:
             for item in self.object.items:
-                if item.filepath.endswith(Session.EXT):
+                if item.filepath.endswith(abcview.io.Session.EXT):
                     yield SessionTreeWidgetItem(self, item)
-                elif item.filepath.endswith(Scene.EXT):
+                elif item.filepath.endswith(abcview.io.Scene.EXT):
                     yield SceneTreeWidgetItem(self, item)
             self.seen = True
 
@@ -436,7 +435,7 @@ class SceneTreeWidgetItem(SessionTreeWidgetItem):
         """
         super(SceneTreeWidgetItem, self).__init__(parent, object)
         self.setToolTip('', 'visible')
-        self.setIcon(0, QtGui.QIcon('{0}/scene.png'.format(config.ICON_DIR)))
+        self.setIcon(0, QtGui.QIcon('{0}/scene.png'.format(abcview.config.ICON_DIR)))
         self.setExpanded(False)
 
         # for GL selection
@@ -654,7 +653,7 @@ class AbcTreeWidget(DeselectableTreeWidget):
                 if self._item.type() in (list, tuple):
                     new_value = s2f(new_value)
                     old_value = s2f(self._item.old_value)
-                    diff_value = diff_two_lists(old_value, new_value)
+                    diff_value = abcview.utils.diff_two_lists(old_value, new_value)
                 else:
                     diff_value = new_value
 
@@ -702,7 +701,7 @@ class AbcTreeWidget(DeselectableTreeWidget):
             while type(item) != ObjectTreeWidgetItem:
                 item.setExpanded(True)
                 item = item.child(0)
-            for object in find_objects(item.object, name):
+            for object in abcview.utils.find_objects(item.object, name):
                 parts = [p for p in object.getFullName().split('/') if p]
                 item.setExpanded(True)
                 while parts:
@@ -780,7 +779,7 @@ class ObjectTreeWidget(AbcTreeWidget):
 
     def handle_item_expanded(self, item):
         if type(item) == SessionTreeWidgetItem:
-            item.setIcon(0, QtGui.QIcon('{0}/session-open.png'.format(config.ICON_DIR)))
+            item.setIcon(0, QtGui.QIcon('{0}/session-open.png'.format(abcview.config.ICON_DIR)))
         if not item.seen:
             for child in item.children():
                 item.addChild(child)
@@ -788,7 +787,7 @@ class ObjectTreeWidget(AbcTreeWidget):
 
     def handle_item_collapsed(self, item):
         if type(item) == SessionTreeWidgetItem:
-            item.setIcon(0, QtGui.QIcon('{0}/session.png'.format(config.ICON_DIR)))
+            item.setIcon(0, QtGui.QIcon('{0}/session.png'.format(abcview.config.ICON_DIR)))
 
     def handle_set_color(self, ok):
         """
@@ -876,8 +875,8 @@ class ObjectTreeWidget(AbcTreeWidget):
             #self.offAct.setShortcut("0")
             self.offAct.setCheckable(True)
             self.offAct.setActionGroup(shading_group)
-            self.offAct.setData(Mode.OFF)
-            self.offAct.setChecked(item.object.mode == Mode.OFF)
+            self.offAct.setData(abcview.io.Mode.OFF)
+            self.offAct.setChecked(item.object.mode == abcview.io.Mode.OFF)
             self.offAct.toggled.connect(self.handle_set_mode)
             self.shading_menu.addAction(self.offAct)
 
@@ -885,8 +884,8 @@ class ObjectTreeWidget(AbcTreeWidget):
             #self.fillAct.setShortcut("1")
             self.fillAct.setCheckable(True)
             self.fillAct.setActionGroup(shading_group)
-            self.fillAct.setData(Mode.FILL)
-            self.fillAct.setChecked(item.object.mode == Mode.FILL)
+            self.fillAct.setData(abcview.io.Mode.FILL)
+            self.fillAct.setChecked(item.object.mode == abcview.io.Mode.FILL)
             self.fillAct.toggled.connect(self.handle_set_mode)
             self.shading_menu.addAction(self.fillAct)
 
@@ -894,8 +893,8 @@ class ObjectTreeWidget(AbcTreeWidget):
             #self.lineAct.setShortcut("2")
             self.lineAct.setCheckable(True)
             self.lineAct.setActionGroup(shading_group)
-            self.lineAct.setData(Mode.LINE)
-            self.lineAct.setChecked(item.object.mode == Mode.LINE)
+            self.lineAct.setData(abcview.io.Mode.LINE)
+            self.lineAct.setChecked(item.object.mode == abcview.io.Mode.LINE)
             self.lineAct.toggled.connect(self.handle_set_mode)
             self.shading_menu.addAction(self.lineAct)
 
@@ -903,8 +902,8 @@ class ObjectTreeWidget(AbcTreeWidget):
             #self.pointAct.setShortcut("3")
             self.pointAct.setCheckable(True)
             self.pointAct.setActionGroup(shading_group)
-            self.pointAct.setData(Mode.POINT)
-            self.pointAct.setChecked(item.object.mode == Mode.POINT)
+            self.pointAct.setData(abcview.io.Mode.POINT)
+            self.pointAct.setChecked(item.object.mode == abcview.io.Mode.POINT)
             self.pointAct.toggled.connect(self.handle_set_mode)
             self.shading_menu.addAction(self.pointAct)
 
@@ -912,8 +911,8 @@ class ObjectTreeWidget(AbcTreeWidget):
             #self.bboxAct.setShortcut("4")
             self.bboxAct.setCheckable(True)
             self.bboxAct.setActionGroup(shading_group)
-            self.bboxAct.setData(Mode.BOUNDS)
-            self.bboxAct.setChecked(item.object.mode == Mode.BOUNDS)
+            self.bboxAct.setData(abcview.io.Mode.BOUNDS)
+            self.bboxAct.setChecked(item.object.mode == abcview.io.Mode.BOUNDS)
             self.bboxAct.toggled.connect(self.handle_set_mode)
             self.shading_menu.addAction(self.bboxAct)
 
