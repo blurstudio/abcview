@@ -507,7 +507,7 @@ class AbcView(QtWidgets.QMainWindow):
 
         #TODO: refactor these signals
         self.objects_tree = abcview.widget.tree_widget.ObjectTreeWidget(self, main=self)
-        self.objects_tree.signal_item_removed.connect(self.handle_item_removed)
+        self.objects_tree.SIGNAL_ITEM_REMOVED.connect(self.handle_item_removed)
         self.objects_tree.SIGNAL_VIEW_CAMERA.connect(self.handle_view_camera)
         self.objects_tree.itemSelectionChanged.connect(self.handle_object_selection)
         self.objects_tree.itemClicked.connect(self.handle_item_selected)
