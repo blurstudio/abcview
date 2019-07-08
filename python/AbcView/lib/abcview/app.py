@@ -594,9 +594,9 @@ class AbcView(QtWidgets.QMainWindow):
         self.samples_tree.itemSelectionChanged.connect(self.array_tree.clear)
         self.objects_tree.SIGNAL_ITEM_LOADED.connect(self.handle_item_loaded)
         self.objects_tree.SIGNAL_ITEM_UNLOADED.connect(self.handle_item_unloaded)
-        self.objects_tree.SIGNAL_ITEM_CLICKED.connect(self.handle_object_clicked)
-        self.properties_tree.SIGNAL_ITEM_CLICKED.connect(self.handle_property_clicked)
-        self.samples_tree.SIGNAL_ITEM_CLICKED.connect(self.array_tree.show_values)
+        self.objects_tree.itemClicked.connect(self.handle_object_clicked)
+        self.properties_tree.itemClicked.connect(self.handle_property_clicked)
+        self.samples_tree.itemClicked.connect(self.array_tree.show_values)
         self.find_line_edit.returnPressed.connect(self.handle_find)
 
         # wait for main event loop to start
