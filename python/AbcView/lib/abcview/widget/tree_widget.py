@@ -272,9 +272,9 @@ class EditableTreeWidgetItem(AbcTreeWidgetItem):
         return self.property[1]
 
     def formatted(self):
-        if isinstance(self, (list, tuple)):
+        if isinstance(self.value(), (list, tuple)):
             return ', '.join([str(v) for v in self.value()])
-        elif isinstance(self, (unicode, str, int, float, bool)):
+        elif isinstance(self.value(), (unicode, str, int, float, bool)):
             return str(self.value())
 
     def type(self):
