@@ -1315,7 +1315,7 @@ class AbcView(QtWidgets.QMainWindow):
         """
         self.viewer.remove_scene(item.object)
 
-    def handle_object_clicked(self, item):
+    def handle_object_clicked(self, item, col=0):
         """
         Object tree item clicked handler.
 
@@ -1326,7 +1326,7 @@ class AbcView(QtWidgets.QMainWindow):
         self.properties_tree.show_properties(item)
 
     @wait
-    def handle_property_clicked(self, item):
+    def handle_property_clicked(self, item, col=0):
         """
         Property tree item clicked handler.
 
