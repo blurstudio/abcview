@@ -1024,8 +1024,8 @@ class ArrayTreeWidget(AbcTreeWidget):
         if array.length() > 0:
             self.get_rows(0, self.row_count())
 
-    def handle_add_value(self, indexValue):
-        self.index, value = indexValue
+    def handle_add_value(self, index, value):
+        self.index = index
         self.addTopLevelItem(ArrayTreeWidgetItem(self, self.index, value))
 
     ## base class overrides
