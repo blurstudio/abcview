@@ -200,8 +200,8 @@ class ObjectTreeWidgetItem(AbcTreeWidgetItem):
         self.setIcon(0, QtGui.QIcon('{0}/object.png'.format(abcview.config.ICON_DIR)))
 
         self.object = iObject
-        if object:
-            if self.iObject.getNumChildren() > 0:
+        if iObject:
+            if self.object.getNumChildren() > 0:
                 self.setChildIndicatorPolicy(QtWidgets.QTreeWidgetItem.ShowIndicator)
             self.setExpanded(False)
             self.setText('name', iObject.getName())
@@ -480,16 +480,10 @@ class AbcTreeWidget(DeselectableTreeWidget):
     COLUMNS = copy.copy(DEFAULT_COLUMNS)
 
     #TODO: Check signals used
-    SIGNAL_ITEM_SELECTED = Signal()
-    SIGNAL_ITEM_EXPANDED = Signal()
     SIGNAL_ITEM_LOADED = Signal(AbcTreeWidgetItem)
     SIGNAL_ITEM_UNLOADED = Signal(AbcTreeWidgetItem)
-    SIGNAL_ITEM_ADDED = Signal(AbcTreeWidgetItem)
+    # SIGNAL_ITEM_ADDED = Signal(AbcTreeWidgetItem)
     SIGNAL_ITEM_REMOVED = Signal(AbcTreeWidgetItem)
-    SIGNAL_ITEM_COLLAPSED = Signal(AbcTreeWidgetItem)
-    SIGNAL_ITEM_CLICKED = Signal(AbcTreeWidgetItem)
-    SIGNAL_ITEM_DOUBLECLICKED = Signal(AbcTreeWidgetItem)
-    SIGNAL_CONTEXT_MENU_REQUESTED = Signal(object)
 
     def colnum(self, name):
         return self.COLUMNS.get(name, -1)
@@ -519,25 +513,12 @@ class AbcTreeWidget(DeselectableTreeWidget):
 
         self.init_header()
 
-        #TODO: refactor all this event handling
-        # self.connect(self, QtCore.SIGNAL("itemSelectionChanged ()"),
-        #         self.handle_item_selected)
-        # self.connect(self, QtCore.SIGNAL("itemClicked (QTreeWidgetItem *, int)"),
-        #         self.handle_item_clicked)
-        # self.connect(self, QtCore.SIGNAL("itemDoubleClicked (QTreeWidgetItem *, int)"),
-        #         self.handle_item_double_clicked)
-        # self.connect(self, QtCore.SIGNAL("itemExpanded (QTreeWidgetItem *)"),
-        #         self.handle_item_expanded)
-        # self.connect(self, QtCore.SIGNAL("itemCollapsed (QTreeWidgetItem *)"),
-        #         self.handle_item_collapsed)
-        # self.connect(self, QtCore.SIGNAL("customContextMenuRequested (const QPoint&)"),
-        #         self.handle_context_menu)
-        self.SIGNAL_ITEM_SELECTED.connect(self.handle_item_selected)
-        self.SIGNAL_ITEM_CLICKED.connect(self.handle_item_clicked)
-        self.SIGNAL_ITEM_DOUBLECLICKED.connect(self.handle_item_double_clicked)
-        self.SIGNAL_ITEM_EXPANDED.connect(self.handle_item_expanded)
-        self.SIGNAL_ITEM_COLLAPSED.connect(self.handle_item_collapsed)
-        self.SIGNAL_CONTEXT_MENU_REQUESTED.connect(self.handle_context_menu)
+        self.itemSelectionChanged.connect(self.handle_item_selected)
+        self.itemClicked.connect(self.handle_item_clicked)
+        self.itemDoubleClicked.connect(self.handle_item_double_clicked)
+        self.itemExpanded.connect(self.handle_item_expanded)
+        self.itemCollapsed.connect(self.handle_item_collapsed)
+        self.customContextMenuRequested.connect(self.handle_context_menu)
 
     def init_header(self):
         self.COLUMNS = copy.copy(self.DEFAULT_COLUMNS)
@@ -577,7 +558,7 @@ class AbcTreeWidget(DeselectableTreeWidget):
         Item click handler.
         """
         self.scrollToItem(item, QtWidgets.QAbstractItemView.EnsureVisible)
-        self.SIGNAL_ITEM_CLICKED.emit(item)
+        self.itemClicked.emit(item, col)
         if col == self.colnum('') and isinstance(item, SceneTreeWidgetItem):
             if item.checkState(self.colnum('')) == QtCore.Qt.Checked:
                 item.load()
@@ -600,7 +581,7 @@ class AbcTreeWidget(DeselectableTreeWidget):
         editor = SceneLineEditor(item, str(value))
         self._item.editor = editor
         self.setItemWidget(item, colnum, editor)
-        self.SIGNAL_ITEM_DOUBLECLICKED.emit(item)
+        self.itemDoubleClicked.emit(item, colnum)
         self._item.old_value = str(self._item.editor.text())
         #editor.textEdited.connect(self.handle_value_change)
         editor.editingFinished.connect(self.handle_done_editing)
