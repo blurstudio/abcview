@@ -558,7 +558,6 @@ class AbcTreeWidget(DeselectableTreeWidget):
         Item click handler.
         """
         self.scrollToItem(item, QtWidgets.QAbstractItemView.EnsureVisible)
-        self.itemClicked.emit(item, col)
         if col == self.colnum('') and isinstance(item, SceneTreeWidgetItem):
             if item.checkState(self.colnum('')) == QtCore.Qt.Checked:
                 item.load()
@@ -581,7 +580,6 @@ class AbcTreeWidget(DeselectableTreeWidget):
         editor = SceneLineEditor(item, str(value))
         self._item.editor = editor
         self.setItemWidget(item, colnum, editor)
-        self.itemDoubleClicked.emit(item, colnum)
         self._item.old_value = str(self._item.editor.text())
         #editor.textEdited.connect(self.handle_value_change)
         editor.editingFinished.connect(self.handle_done_editing)
@@ -676,7 +674,7 @@ class AbcTreeWidget(DeselectableTreeWidget):
         for index in range(self.topLevelItemCount()):
             item = self.topLevelItem(index)
             found = False
-            while isinstance(item, ObjectTreeWidgetItem):
+            while not isinstance(item, ObjectTreeWidgetItem):
                 item.setExpanded(True)
                 item = item.child(0)
             for object in abcview.utils.find_objects(item.object, name):
