@@ -505,7 +505,6 @@ class AbcView(QtWidgets.QMainWindow):
         self.objects_group = QtWidgets.QGroupBox(self)
         self.objects_group.setLayout(QtWidgets.QVBoxLayout())
 
-        #TODO: refactor these signals
         self.objects_tree = abcview.widget.tree_widget.ObjectTreeWidget(self, main=self)
         self.objects_tree.SIGNAL_ITEM_REMOVED.connect(self.handle_item_removed)
         self.objects_tree.SIGNAL_VIEW_CAMERA.connect(self.handle_view_camera)
@@ -588,7 +587,6 @@ class AbcView(QtWidgets.QMainWindow):
         self.console_splitter.addWidget(self.console)
         self.setCentralWidget(self.console_splitter)
 
-        # TODO: refactor signals to new signal object method
         self.objects_tree.itemSelectionChanged.connect(self.properties_tree.clear)
         self.properties_tree.itemSelectionChanged.connect(self.samples_tree.clear)
         self.samples_tree.itemSelectionChanged.connect(self.array_tree.clear)
