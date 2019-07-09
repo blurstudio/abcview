@@ -479,10 +479,8 @@ class AbcTreeWidget(DeselectableTreeWidget):
     DEFAULT_COLUMNS.update(dict(zip(DEFAULT_COLUMN_NAMES, range(len(DEFAULT_COLUMN_NAMES)))))
     COLUMNS = copy.copy(DEFAULT_COLUMNS)
 
-    #TODO: Check signals used
     SIGNAL_ITEM_LOADED = Signal(AbcTreeWidgetItem)
     SIGNAL_ITEM_UNLOADED = Signal(AbcTreeWidgetItem)
-    # SIGNAL_ITEM_ADDED = Signal(AbcTreeWidgetItem)
     SIGNAL_ITEM_REMOVED = Signal(AbcTreeWidgetItem)
 
     def colnum(self, name):
