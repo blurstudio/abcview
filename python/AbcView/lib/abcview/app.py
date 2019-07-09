@@ -830,9 +830,9 @@ class AbcView(QtWidgets.QMainWindow):
         :param mode: Override display mode (abcview.io.Mode)
         """
         self._load_files = deepcopy(filepaths)
-        #self.setWindowTitle('%s - %s' % (self.TITLE,
-        #    ', '.join([os.path.basename(f) for f in filepaths]))
-        #)
+
+        self.setWindowTitle('{0} - {1}'.format(self.TITLE,
+                                               ', '.join([os.path.basename(f) for f in filepaths])))
         self.splash.progress.setMaximum(len(filepaths))
 
     def set_frames_from_session(self, session):
