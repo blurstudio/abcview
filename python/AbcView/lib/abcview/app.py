@@ -551,9 +551,9 @@ class AbcView(QtWidgets.QMainWindow):
         self.viewer.SIGNAL_SCENE_OPENED.connect(self.handle_scene_opened)
         self.viewer.SIGNAL_SET_CAMERA.connect(self.handle_set_camera)
         self.viewer.SIGNAL_NEW_CAMERA.connect(self.handle_new_camera)
-        self.viewer.state.SIGNAL_CURRENT_FRAME.connect(self.handle_update_frame)
-        self.viewer.state.SIGNAL_PLAY_FWD.connect(self.handle_state_play_fwd)
-        self.viewer.state.SIGNAL_PLAY_STOP.connect(self.handle_state_play_stop)
+        self.viewer.state.SIGNAL_STATE_CURRENT_FRAME.connect(self.handle_update_frame)
+        self.viewer.state.SIGNAL_STATE_PLAY_FWD.connect(self.handle_state_play_fwd)
+        self.viewer.state.SIGNAL_STATE_PLAY_STOP.connect(self.handle_state_play_stop)
         self.viewer.SIGNAL_SCENE_SELECTED.connect(self.handle_scene_selected)
         self.viewer.SIGNAL_OBJECT_SELECTED.connect(self.handle_object_selected)
         self.viewer.SIGNAL_CLEAR_SELECTION.connect(self.objects_tree.clearSelection)
@@ -562,10 +562,10 @@ class AbcView(QtWidgets.QMainWindow):
         # time slider
         self.time_slider = abcview.widget.time_slider.TimeSlider(self)
         self.time_slider.setFocus(True)
-        self.time_slider.SIGNAL_PLAY_FWD.connect(self.handle_play)
-        self.time_slider.SIGNAL_PLAY_STOP.connect(self.handle_stop)
-        self.time_slider.SIGNAL_FIRST_FRAME_CHANGED.connect(self.handle_first_frame_change)
-        self.time_slider.SIGNAL_LAST_FRAME_CHANGED.connect(self.handle_last_frame_change)
+        self.time_slider.SIGNAL_SLIDER_PLAY_FWD.connect(self.handle_play)
+        self.time_slider.SIGNAL_SLIDER_PLAY_STOP.connect(self.handle_stop)
+        self.time_slider.SIGNAL_SLIDER_FIRST_FRAME_CHANGED.connect(self.handle_first_frame_change)
+        self.time_slider.SIGNAL_SLIDER_LAST_FRAME_CHANGED.connect(self.handle_last_frame_change)
         self.time_slider_toolbar = QtWidgets.QToolBar(self)
         self.time_slider_toolbar.setObjectName('time_slider_toolbar')
         self.time_slider_toolbar.addWidget(self.time_slider)
@@ -885,7 +885,7 @@ class AbcView(QtWidgets.QMainWindow):
 
         abcview.log.debug('session loaded in {0:.2f}'.format(time.time() - start))
         self.splash.close()
-        self.time_slider.SIGNAL_FRAME_CHANGED.connect(self.handle_time_slider_change)
+        self.time_slider.SIGNAL_SLIDER_FRAME_CHANGED.connect(self.handle_time_slider_change)
 
         self.viewer.setEnabled(True)
 
