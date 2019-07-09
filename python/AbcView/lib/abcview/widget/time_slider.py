@@ -165,11 +165,11 @@ class Slider(QtWidgets.QSlider):
 
 class TimeSlider(QtWidgets.QGroupBox):
 
-    SIGNAL_PLAY_FWD = Signal()
-    SIGNAL_PLAY_STOP = Signal()
-    SIGNAL_FRAME_CHANGED = Signal(int)
-    SIGNAL_FIRST_FRAME_CHANGED = Signal(int)
-    SIGNAL_LAST_FRAME_CHANGED = Signal(int)
+    SIGNAL_SLIDER_PLAY_FWD = Signal()
+    SIGNAL_SLIDER_PLAY_STOP = Signal()
+    SIGNAL_SLIDER_FRAME_CHANGED = Signal(int)
+    SIGNAL_SLIDER_FIRST_FRAME_CHANGED = Signal(int)
+    SIGNAL_SLIDER_LAST_FRAME_CHANGED = Signal(int)
 
     def __init__(self, parent):
         super(TimeSlider, self).__init__(parent)
@@ -233,17 +233,23 @@ class TimeSlider(QtWidgets.QGroupBox):
         """
         Sets the minimum frame value.
         """
+
+        value = int(value)
+
         self.__minimum = value
         self.slider.setMinimum(value)
-        self.first_frame_label.setText(str(int(value)))
+        self.first_frame_label.setText(str(value))
 
     def set_maximum(self, value):
         """
         Sets the maximum frame value.
         """
+
+        value = int(value)
+
         self.__maximum = value
         self.slider.setMaximum(value)
-        self.last_frame_label.setText(str(int(value)))
+        self.last_frame_label.setText(str(value))
 
     def length(self):
         return self.slider.length()
@@ -272,33 +278,33 @@ class TimeSlider(QtWidgets.QGroupBox):
     playing = property(_get_playing, _set_playing)
 
     def handle_frame_change(self, value):
-        self.SIGNAL_FRAME_CHANGED.emit(value)
+        self.SIGNAL_SLIDER_FRAME_CHANGED.emit(value)
 
     def handle_first_frame_changed(self):
-        value = self.first_frame_label.text()
+        value = int(self.first_frame_label.text())
         if value <= self.__maximum:
             self.set_minimum(value)
-            self.SIGNAL_FIRST_FRAME_CHANGED.emit(int(value))
+            self.SIGNAL_SLIDER_FIRST_FRAME_CHANGED.emit(value)
         else:
             self.set_minimum(self.__maximum)
 
     def handle_last_frame_changed(self):
-        value = self.last_frame_label.text()
+        value = int(self.last_frame_label.text())
         if value >= self.__minimum:
-            self.set_maximum(int(value))
-            self.SIGNAL_LAST_FRAME_CHANGED.emit(int(value))
+            self.set_maximum(value)
+            self.SIGNAL_SLIDER_LAST_FRAME_CHANGED.emit(value)
         else:
             self.set_maximum(self.__minimum)
 
     def handle_stop(self):
         self.playing = False
-        self.SIGNAL_PLAY_STOP.emit()
+        self.SIGNAL_SLIDER_PLAY_STOP.emit()
 
     def handle_play(self):
         if self.length() == 0:
             return
         self.playing = True
-        self.SIGNAL_PLAY_FWD.emit()
+        self.SIGNAL_SLIDER_PLAY_FWD.emit()
 
     ## base class overrides
 
