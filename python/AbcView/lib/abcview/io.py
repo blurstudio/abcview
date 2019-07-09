@@ -209,10 +209,11 @@ class Base(object):
 class FileBase(Base):
     SERIALIZE = []
     EXT = None
+    DEFAULT_NAME = "Unnamed"
     def __init__(self, filepath, parent=None):
         super(FileBase, self).__init__(parent)
         self.__filepath = filepath
-        self.__name = "Unnamed"
+        self.__name = FileBase.DEFAULT_NAME
 
     def is_archive(self):
         return self.fileext == Scene.EXT
@@ -456,7 +457,7 @@ class Scene(FileBase, EditableMixin):
         """
         item = cls(data.get("filepath"))
         item.uuid = data.get("uuid", make_uuid())
-        item.name = data.get("name", "Unnamed")
+        item.name = data.get("name", FileBase.DEFAULT_NAME)
         item.loaded = data.get("loaded", True)
         item.instance = data.get("instance", 1)
         item.overrides = idict(data.get("overrides", {}))
@@ -817,6 +818,21 @@ class Session(FileBase, EditableMixin):
 
     cameras = property(_get_cameras, _set_cameras, doc="cameras")
 
+    def set_name(self, newName):
+        """ Add a new name to the Session
+        If Session already has a name, append to it
+
+        :param newName: new name to add to Session
+        :type newName: str
+        """
+
+        if newName:
+            if self.name == FileBase.DEFAULT_NAME:
+                self._set_filepath(newName)
+            else:
+
+                self._set_filepath('{0} | {1}'.format(self.name, newName))
+
     def add_item(self, item):
         """
         Adds and item to the session
@@ -851,8 +867,10 @@ class Session(FileBase, EditableMixin):
         log.debug("[%s.add_file] %s" % (self, filepath))
         if filepath.endswith(self.EXT):
             item = Session(filepath)
+            self.set_name(filepath)
         elif filepath.endswith(Scene.EXT):
             item = Scene(filepath)
+            self.set_name(filepath)
         else:
             raise AbcViewError("Unsupported file type: %s" % filepath)
         self.add_item(item)
