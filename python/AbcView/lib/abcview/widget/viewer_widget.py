@@ -494,7 +494,6 @@ class GLWidget(QtOpenGL.QGLWidget):
     SIGNAL_SCENE_OPENED = Signal(abcview.gl.GLScene)
     SIGNAL_SCENE_REMOVED = Signal(abcview.gl.GLScene)
     SIGNAL_SCENE_ERROR = Signal(str)
-    SIGNAL_SCENE_DRAWN = Signal()
 
     # camera signals (pass 'object' to support both camera classes)
     SIGNAL_SET_CAMERA = Signal(object)
@@ -1588,7 +1587,6 @@ class GLWidget(QtOpenGL.QGLWidget):
         """
         mouse wheel event handler
         """
-        #TODO : fix it
         dx = event.pixelDelta().y() / 10
         self.camera.dolly(dx, 0)
         event.accept()
