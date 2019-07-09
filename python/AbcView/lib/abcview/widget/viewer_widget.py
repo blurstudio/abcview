@@ -959,8 +959,8 @@ class GLWidget(QtOpenGL.QGLWidget):
         :param mode: abcview.io.Mode enum value
         """
         self.setCursor(QtCore.Qt.WaitCursor)
-        if self.sender(): # via menu action 
-            mode = self.sender().data()[0]
+        if self.sender(): # via menu action
+            mode = self.sender().data()
         if mode not in GL_MODE_MAP.keys():
             raise Exception('Invalid drawing mode: {0}'.format(mode))
         self.camera.mode = mode
