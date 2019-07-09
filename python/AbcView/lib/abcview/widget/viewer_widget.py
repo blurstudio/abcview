@@ -184,10 +184,10 @@ class GLState(QtCore.QObject):
     SECOND = 1000.0
 
     SIGNAL_STATE_CHANGE = Signal()
-    SIGNAL_PLAY_FWD = Signal()
-    SIGNAL_PLAY_STOP = Signal()
-    SIGNAL_CURRENT_TIME = Signal(float)
-    SIGNAL_CURRENT_FRAME = Signal(int)
+    SIGNAL_STATE_PLAY_FWD = Signal()
+    SIGNAL_STATE_PLAY_STOP = Signal()
+    SIGNAL_STATE_CURRENT_TIME = Signal(float)
+    SIGNAL_STATE_CURRENT_FRAME = Signal(int)
 
     def __init__(self, fps=24.0):
         """
@@ -337,8 +337,8 @@ class GLState(QtCore.QObject):
         for scene in self.scenes:
             if scene.visible:
                 scene.set_time(new_time)
-        self.SIGNAL_CURRENT_TIME.emit(new_time)
-        self.SIGNAL_CURRENT_FRAME.emit(int(round(new_time * self.frames_per_second)))
+        self.SIGNAL_STATE_CURRENT_TIME.emit(new_time)
+        self.SIGNAL_STATE_CURRENT_FRAME.emit(int(round(new_time * self.frames_per_second)))
 
         # update other viewers
         self.SIGNAL_STATE_CHANGE.emit()
@@ -439,7 +439,7 @@ class GLState(QtCore.QObject):
         self.timer.timeout.connect(self._play_fwd_cb)
         self.timer.start()
         self.__fps_timer.start()
-        self.SIGNAL_PLAY_FWD.emit()
+        self.SIGNAL_STATE_PLAY_FWD.emit()
 
     def _play_fwd_cb(self):
         """
@@ -456,13 +456,14 @@ class GLState(QtCore.QObject):
         """
         Stops scene playback
         """
-        self.__playing = False
-        self.timer.timeout.disconnect(self._play_fwd_cb)
-        self.timer.stop()
-        self.__fps_timer.stop()
-        self.__fps_counter = 0
-        self.fps = 0.0
-        self.SIGNAL_PLAY_STOP.emit()
+        if self.__playing:
+            self.__playing = False
+            self.timer.timeout.disconnect(self._play_fwd_cb)
+            self.timer.stop()
+            self.__fps_timer.stop()
+            self.__fps_counter = 0
+            self.fps = 0.0
+            self.SIGNAL_STATE_PLAY_STOP.emit()
 
     def _fps_timer_cb(self):
         """
