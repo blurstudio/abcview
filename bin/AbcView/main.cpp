@@ -35,10 +35,7 @@
 //-*****************************************************************************
 
 #include "MainWindow.h"
-#include "MainWindow.moc"
-#include "GLState.moc"
-#include "ObjectTreeWidget.moc"
-#include <QtGui/QApplication>
+#include <QtWidgets/QApplication>
 
 //-*****************************************************************************
 int main( int argc, char *argv[] )

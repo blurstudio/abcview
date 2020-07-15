@@ -66,20 +66,19 @@
 
 #endif // ifdef PLATFORM_DARWIN
 
-#include <QtCore/QtCore>
-#include <QtGui/QAction>
-#include <QtGui/QAbstractItemView>
-#include <QtGui/QDockWidget>
-#include <QtGui/QFileDialog>
-#include <QtGui/QLabel>
-#include <QtGui/QMenu>
-#include <QtGui/QMenuBar>
-#include <QtGui/QMainWindow>
-#include <QtGui/QStyleFactory>
-#include <QtGui/QToolBar>
-#include <QtGui/QTreeWidget>
-#include <QtGui/QTreeWidgetItem>
-#include <QtGui/QWidget>
+#include <QtWidgets/QAction>
+#include <QtWidgets/QAbstractItemView>
+#include <QtWidgets/QDockWidget>
+#include <QtWidgets/QFileDialog>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QMenu>
+#include <QtWidgets/QMenuBar>
+#include <QtWidgets/QMainWindow>
+#include <QtWidgets/QStyleFactory>
+#include <QtWidgets/QToolBar>
+#include <QtWidgets/QTreeWidget>
+#include <QtWidgets/QTreeWidgetItem>
+#include <QtWidgets/QWidget>
 #include <QIODevice>
 #include <QFile>
 #include <QResizeEvent>

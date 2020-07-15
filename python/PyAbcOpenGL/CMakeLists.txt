@@ -33,9 +33,16 @@
 ##
 ##-*****************************************************************************
 
-IF (Boost_PYTHON_LIBRARY AND PYTHON_LIBRARY)
+find_package(Python2 COMPONENTS Development)
+
+MESSAGE(STATUS "PYTHON_LIBRARIES: ${Python2_LIBRARIES}")
+MESSAGE(STATUS "Boost_PYTHON_LIBRARY: ${Boost_PYTHON_LIBRARY}")
+MESSAGE(STATUS "PYTHON_INCLUDE_DIR:" ${Python2_INCLUDE_DIRS})
+
+IF (Boost_PYTHON_LIBRARY AND Python2_Development_FOUND)
+
   MESSAGE(STATUS "Found libboost_python: ${Boost_PYTHON_LIBRARY}")
-  SET(PLIBS ${PYTHON_LIBRARY} ${Boost_PYTHON_LIBRARY})
+  SET(PLIBS ${Python2_LIBRARIES} ${Boost_PYTHON_LIBRARY})
 
   SET(CPP_FILES
       PyAlembicOpenGL.cpp
