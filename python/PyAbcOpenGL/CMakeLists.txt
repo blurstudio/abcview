@@ -33,62 +33,16 @@
 ##
 ##-*****************************************************************************
 
-IF (NOT DEFINED LIBPYTHON_VERSION)
-    IF (APPLE)
-        SET(LIBPYTHON_VERSION 2.7)
-    ELSE()
-        SET(LIBPYTHON_VERSION 2.6)
-    ENDIF()
-ENDIF()
+find_package(Python2 COMPONENTS Development)
 
-SET(LIBPYTHON python${LIBPYTHON_VERSION})
-OPTION(USE_LIB64 "Search for deps in lib64 vs lib" ON)
-
-# find python lib dir and include files
-IF (${CMAKE_HOST_UNIX})
-    SET(LIBPYTHON_FILE "lib${LIBPYTHON}.a")
-    IF(${DARWIN})
-        SET(OSX_PYTHON_ROOT
-            "/System/Library/Frameworks/Python.framework/Versions/${LIBPYTHON_VERSION}")
-        SET(PYTHON_INCLUDE_DIR "${OSX_PYTHON_ROOT}/include/${LIBPYTHON}" )
-        SET(PYTHON_ROOT "${OSX_PYTHON_ROOT}")
-    ELSE()
-        SET(PYTHON_INCLUDE_DIR "/usr/include/${LIBPYTHON}")
-        IF (USE_LIB64)
-            SET(PYTHON_ROOT "/usr/lib64/${LIBPYTHON}/config")
-        ELSE()
-            SET(PYTHON_ROOT "/usr/lib/${LIBPYTHON}/config")
-        ENDIF()
-    ENDIF()
-ELSE()
-    SET(LIBPYTHON_FILE "${LIBPYTHON}.dll")
-    IF (${WINDOWS})
-        SET(PYTHON_ROOT "C:/Python${LIBPYTHON_VERSION}/libs")
-    ELSE()
-        SET(PYTHON_ROOT NOTFOUND)
-    ENDIF()
-ENDIF()
-
-MESSAGE(STATUS "LIBPYTHON_FILE: ${LIBPYTHON_FILE}")
-MESSAGE(STATUS "PYTHON_ROOT: ${PYTHON_ROOT}")
-
-# find the python lib file
-FIND_FILE(
-    PYTHON_LIBRARY 
-    ${LIBPYTHON_FILE}
-    PATHS 
-    ${PYTHON_ROOT}
-    ${PYTHON_ROOT}/lib/python${LIBPYTHON_VERSION}/config
-)
-
-MESSAGE(STATUS "PYTHON_LIBRARY: ${PYTHON_LIBRARY}")
+MESSAGE(STATUS "PYTHON_LIBRARIES: ${Python2_LIBRARIES}")
 MESSAGE(STATUS "Boost_PYTHON_LIBRARY: ${Boost_PYTHON_LIBRARY}")
-MESSAGE(STATUS "PYTHON_INCLUDE_DIR:" ${PYTHON_INCLUDE_DIR})
+MESSAGE(STATUS "PYTHON_INCLUDE_DIR:" ${Python2_INCLUDE_DIRS})
 
-IF (Boost_PYTHON_LIBRARY AND PYTHON_LIBRARY)
+IF (Boost_PYTHON_LIBRARY AND Python2_Development_FOUND)
 
   MESSAGE(STATUS "Found libboost_python: ${Boost_PYTHON_LIBRARY}")
-  SET(PLIBS ${PYTHON_LIBRARY} ${Boost_PYTHON_LIBRARY})
+  SET(PLIBS ${Python2_LIBRARIES} ${Boost_PYTHON_LIBRARY})
 
   SET(CPP_FILES
       PyAlembicOpenGL.cpp
@@ -101,7 +55,7 @@ IF (Boost_PYTHON_LIBRARY AND PYTHON_LIBRARY)
       ${PYILMBASE_PYIMATH_LIB}
   )
 
-  INCLUDE_DIRECTORIES("/usr/include/python${LIBPYTHON_VERSION}" "${PROJECT_SOURCE_DIR}/lib"
+  INCLUDE_DIRECTORIES(${Python2_INCLUDE_DIRS} "${PROJECT_SOURCE_DIR}/lib"
       "${PROJECT_SOURCE_DIR}/python/PyAbcOpenGL")
 
   ADD_LIBRARY(alembicglmodule SHARED ${CPP_FILES})
